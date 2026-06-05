@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Django
+*.sqlite3
+*.log
+/backend/staticfiles/
+
+# Environment & secrets
+.env
+
+# Quiz pipeline scratch files (downloaded audio, whisper temp)
+/backend/media/
+*.wav
+*.mp3
+*.webm
+*.m4a
+
+# OS / editor
+.DS_Store
