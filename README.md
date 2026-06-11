@@ -19,8 +19,9 @@ and talks to the backend at `http://127.0.0.1:8000/api/`.
 
 ## Requirements
 
-- **Python** 3.10–3.12 recommended (Whisper/PyTorch wheels). Newer versions may
-  lack PyTorch wheels.
+- **Python** 3.12 or 3.13. Django 6.0 requires Python ≥ 3.12, and PyTorch
+  (pulled in by Whisper) needs a version with available wheels — 3.12 and 3.13
+  both work, 3.14 does not yet.
 - **FFmpeg installed globally** — required by Whisper and by yt-dlp to extract
   the audio track. Verify with `ffmpeg -version`.
   - macOS: `brew install ffmpeg` · Debian/Ubuntu: `sudo apt install ffmpeg`
@@ -51,7 +52,7 @@ The API is now served at `http://127.0.0.1:8000/api/`.
 | `ALLOWED_HOSTS`        | Comma-separated allowed hosts                        |
 | `CORS_ALLOWED_ORIGINS` | Frontend origins allowed to send credentialed calls  |
 | `GEMINI_API_KEY`       | Gemini Flash API key (quiz generation)               |
-| `GEMINI_MODEL`         | Gemini model id (default `gemini-2.0-flash`)         |
+| `GEMINI_MODEL`         | Gemini model id (default `gemini-2.5-flash`)         |
 | `WHISPER_MODEL`        | Whisper model size (`tiny`…`large`, default `base`)  |
 
 ## Running the frontend

@@ -8,8 +8,10 @@ python-dotenv==1.2.2
 # Quiz generation pipeline
 # yt-dlp downloads the YouTube audio, openai-whisper transcribes it locally
 # (requires FFmpeg installed globally), and google-genai prompts Gemini Flash.
-# Note: openai-whisper pulls in PyTorch and needs a Python version with
-# available wheels (3.10-3.12 recommended).
-yt-dlp==2025.7.21
+# Note: openai-whisper pulls in PyTorch; use a Python version with available
+# wheels (3.12 or 3.13).
+# yt-dlp must stay current: older versions are rejected by YouTube
+# ("watch on the latest version"), so it is not hard-pinned.
+yt-dlp>=2025.7.21
 openai-whisper>=20250625
 google-genai>=1.0.0

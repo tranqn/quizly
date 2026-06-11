@@ -171,5 +171,5 @@ CORS_ALLOWED_ORIGINS = os.environ.get(
 
 # External services for the quiz generation pipeline (see quiz_app/api/services.py).
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
-GEMINI_MODEL = os.environ.get('GEMINI_MODEL', 'gemini-2.0-flash')
+GEMINI_MODEL = os.environ.get('GEMINI_MODEL', 'gemini-2.5-flash')
 WHISPER_MODEL = os.environ.get('WHISPER_MODEL', 'base')
