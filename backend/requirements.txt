@@ -5,6 +5,12 @@ djangorestframework-simplejwt==5.5.1
 django-cors-headers==4.9.0
 python-dotenv==1.2.2
 
+# Production serving
+# gunicorn is the WSGI server; whitenoise serves the collected static assets and
+# the static frontend from the same origin (no separate web server needed).
+gunicorn==26.0.0
+whitenoise==6.12.0
+
 # Quiz generation pipeline
 # yt-dlp downloads the YouTube audio, openai-whisper transcribes it locally
 # (requires FFmpeg installed globally), and google-genai prompts Gemini Flash.
@@ -14,4 +20,4 @@ python-dotenv==1.2.2
 # ("watch on the latest version"), so it is not hard-pinned.
 yt-dlp>=2025.7.21
 openai-whisper>=20250625
-google-genai>=1.0.0
+google-genai>=2.0.0
