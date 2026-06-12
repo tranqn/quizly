@@ -14,6 +14,7 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -26,14 +27,18 @@ load_dotenv(BASE_DIR / '.env')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get(
-    'SECRET_KEY',
-    'django-insecure-@p7oh0$#9g6a5&5=f8k__rlrlo903mx48*u0k()p@=0$dz!#it',
-)
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+
+# SECURITY WARNING: keep the secret key used in production secret!
+# A real key is mandatory in production; the insecure fallback below is only
+# used for local development (DEBUG=True).
+SECRET_KEY = os.environ.get('SECRET_KEY', '')
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = 'django-insecure-@p7oh0$#9g6a5&5=f8k__rlrlo903mx48*u0k()p@=0$dz!#it'
+    else:
+        raise ImproperlyConfigured('SECRET_KEY must be set when DEBUG is False.')
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
@@ -57,6 +62,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -88,10 +94,12 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+# SQLITE_PATH lets the database live on a mounted volume in production
+# (the container filesystem is otherwise rebuilt on each deploy).
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': os.environ.get('SQLITE_PATH', str(BASE_DIR / 'db.sqlite3')),
     }
 }
 
@@ -131,6 +139,26 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# WhiteNoise serves the collected Django/admin/DRF assets (hashed + compressed)
+# and, via WHITENOISE_ROOT, the provided static frontend at the site root so the
+# whole app is single-origin. Requests to /api/ and /admin/ fall through to
+# Django; anything else is matched against the frontend files first.
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
+
+# Path to the static frontend (HTML/CSS/JS). Defaults to the sibling frontend/
+# folder in the repo; overridable so the Docker image can point at its own copy.
+FRONTEND_DIR = os.environ.get('FRONTEND_DIR', str(BASE_DIR.parent / 'frontend'))
+WHITENOISE_ROOT = FRONTEND_DIR
+WHITENOISE_INDEX_FILE = True
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
@@ -161,15 +189,53 @@ SIMPLE_JWT = {
 AUTH_COOKIE_SECURE = not DEBUG
 AUTH_COOKIE_SAMESITE = 'Lax'
 
-# CORS: the provided frontend runs on a separate origin and needs credentials.
+# CORS: only needed when the frontend is served from a different origin. In the
+# default same-origin deploy (WhiteNoise serves the frontend) this is unused.
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = os.environ.get(
-    'CORS_ALLOWED_ORIGINS',
-    'http://127.0.0.1:5500,http://localhost:5500',
-).split(',')
+CORS_ALLOWED_ORIGINS = [
+    origin for origin in os.environ.get(
+        'CORS_ALLOWED_ORIGINS',
+        'http://127.0.0.1:5500,http://localhost:5500',
+    ).split(',') if origin
+]
+
+
+# Production security hardening. Active when DEBUG=False, assuming a
+# TLS-terminating reverse proxy (Caddy/nginx) that forwards X-Forwarded-Proto.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = (
+    os.environ.get('SECURE_SSL_REDIRECT', str(not DEBUG)) == 'True'
+)
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', '0'))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = SECURE_HSTS_SECONDS > 0
+SECURE_HSTS_PRELOAD = SECURE_HSTS_SECONDS > 0
+
+# Origins trusted for unsafe (POST/PATCH/DELETE) requests behind HTTPS, e.g.
+# https://quizly.example.com. Required by Django's CSRF checks in production.
+CSRF_TRUSTED_ORIGINS = [
+    origin for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
+    if origin
+]
 
 
 # External services for the quiz generation pipeline (see quiz_app/api/services.py).
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
 GEMINI_MODEL = os.environ.get('GEMINI_MODEL', 'gemini-2.5-flash')
 WHISPER_MODEL = os.environ.get('WHISPER_MODEL', 'base')
+
+# yt-dlp anti-bot knobs (see quiz_app/api/services.py). YouTube blocks datacenter
+# IPs, so these layer on a PO-token provider, account cookies, client selection
+# and an optional residential proxy. All optional/overridable via the environment.
+YTDLP_COOKIEFILE = os.environ.get('YTDLP_COOKIEFILE', '')
+# Empty by default: let yt-dlp pick the clients itself. Forcing specific clients
+# can break extraction (e.g. the 'tv' client now serves DRM-only formats), so
+# only override this when a particular set is known to help.
+YTDLP_PLAYER_CLIENTS = [
+    client for client in
+    os.environ.get('YTDLP_PLAYER_CLIENTS', '').split(',')
+    if client
+]
+YTDLP_POT_BASE_URL = os.environ.get('YTDLP_POT_BASE_URL', '')
+YTDLP_PROXY = os.environ.get('YTDLP_PROXY', '')
