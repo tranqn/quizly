@@ -5,24 +5,67 @@ imported lazily inside the functions that use them, so the rest of the project
 runs without them installed.
 """
 import json
+import time
 import tempfile
 from pathlib import Path
 
 from django.conf import settings
+from rest_framework.exceptions import APIException
 
 from ..models import Question, Quiz
 
 
+class AudioDownloadError(APIException):
+    """Raised when yt-dlp cannot fetch the video audio (e.g. YouTube bot block)."""
+
+    status_code = 500
+    default_detail = (
+        'Could not fetch the video audio. YouTube may be blocking the server; '
+        'try again later or contact the administrator to refresh the cookies.'
+    )
+
+
+class QuizGenerationError(APIException):
+    """Raised when Gemini fails to return usable quiz data (overload, bad JSON)."""
+
+    status_code = 500
+    default_detail = (
+        'Quiz generation is temporarily unavailable (the AI service is busy). '
+        'Please try again in a moment.'
+    )
+
+
 def _ydl_options(target):
     """Build the yt-dlp options for audio-only extraction to mp3."""
-    return {
+    options = {
         'format': 'bestaudio/best',
         'outtmpl': str(target),
         'quiet': True,
-        'postprocessors': [
-            {'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3'}
-        ],
+        'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3'}],
+        'sleep_interval_requests': 1,  # light throttling vs rate-based detection
+        'extractor_args': {},
     }
+    _apply_antibot(options)
+    return options
+
+
+def _apply_antibot(options):
+    """Layer the configured yt-dlp anti-bot knobs onto the base options.
+
+    YouTube blocks datacenter IPs, so we optionally add a player-client choice,
+    a PO-token provider, account cookies and a proxy - each only when set.
+    Forcing clients is avoided by default (the defaults extract more reliably).
+    """
+    if settings.YTDLP_PLAYER_CLIENTS:
+        options['extractor_args']['youtube'] = {
+            'player_client': settings.YTDLP_PLAYER_CLIENTS}
+    if settings.YTDLP_POT_BASE_URL:
+        options['extractor_args']['youtubepot-bgutilhttp'] = {
+            'base_url': [settings.YTDLP_POT_BASE_URL]}
+    if settings.YTDLP_COOKIEFILE:
+        options['cookiefile'] = settings.YTDLP_COOKIEFILE
+    if settings.YTDLP_PROXY:
+        options['proxy'] = settings.YTDLP_PROXY
 
 
 def download_audio(url):
@@ -30,8 +73,11 @@ def download_audio(url):
     import yt_dlp
 
     target = Path(tempfile.mkdtemp()) / 'audio.%(ext)s'
-    with yt_dlp.YoutubeDL(_ydl_options(target)) as ydl:
-        ydl.download([url])
+    try:
+        with yt_dlp.YoutubeDL(_ydl_options(target)) as ydl:
+            ydl.download([url])
+    except yt_dlp.utils.DownloadError as exc:
+        raise AudioDownloadError() from exc
     return target.with_suffix('.mp3')
 
 
@@ -56,13 +102,33 @@ def build_quiz_prompt(transcript):
 
 
 def generate_quiz_data(transcript):
-    """Ask Gemini Flash to turn the transcript into structured quiz data."""
+    """Ask Gemini Flash to turn the transcript into quiz data, retrying on overload.
+
+    Gemini occasionally returns transient 429/503; retry with backoff, then fail
+    with a clear error.
+    """
+    from google.genai import errors
+
+    prompt = build_quiz_prompt(transcript)
+    for attempt in range(3):
+        try:
+            return _request_quiz(prompt)
+        except errors.APIError as exc:
+            transient = getattr(exc, 'code', None) in (429, 500, 503)
+            if not (transient and attempt < 2):
+                raise QuizGenerationError() from exc
+            time.sleep(2 ** attempt)
+        except (json.JSONDecodeError, KeyError, TypeError) as exc:
+            raise QuizGenerationError() from exc
+
+
+def _request_quiz(prompt):
+    """Send one prompt to Gemini and parse the returned quiz JSON."""
     from google import genai
 
     client = genai.Client(api_key=settings.GEMINI_API_KEY)
     response = client.models.generate_content(
-        model=settings.GEMINI_MODEL,
-        contents=build_quiz_prompt(transcript),
+        model=settings.GEMINI_MODEL, contents=prompt,
     )
     return _parse_quiz_json(response.text)
 
