@@ -15,6 +15,8 @@ env/
 
 # Environment & secrets
 .env
+/secrets/*
+!/secrets/.gitkeep
 
 # Quiz pipeline scratch files (downloaded audio, whisper temp)
 /backend/media/
