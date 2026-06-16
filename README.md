@@ -19,13 +19,18 @@ and talks to the backend at `http://127.0.0.1:8000/api/`.
 
 ## Requirements
 
-- **Python** 3.12 or 3.13. Django 6.0 requires Python ≥ 3.12, and PyTorch
-  (pulled in by Whisper) needs a version with available wheels — 3.12 and 3.13
-  both work, 3.14 does not yet.
+- **Python 3.13** (recommended). Django 6.0 requires Python ≥ 3.12, and PyTorch
+  (pulled in by Whisper) needs a version with available wheels — 3.13 is the
+  version this project is developed and tested against; 3.12 also works, 3.14
+  does not yet.
 - **FFmpeg installed globally** — required by Whisper and by yt-dlp to extract
   the audio track. Verify with `ffmpeg -version`.
   - macOS: `brew install ffmpeg` · Debian/Ubuntu: `sudo apt install ffmpeg`
 - A **Gemini API key** (free tier) from <https://aistudio.google.com/apikey>.
+- **A JavaScript runtime (optional, recommended)** — `deno`, `bun` or `node`.
+  yt-dlp uses it to solve YouTube's JS challenges; it deprecates running without
+  one ("some formats may be missing"). Audio extraction usually works without it,
+  so it is optional locally. The Docker image bundles `bun`.
 
 ## Backend setup
 
@@ -57,11 +62,24 @@ The API is now served at `http://127.0.0.1:8000/api/`.
 
 ## Running the frontend
 
-Serve the `frontend/` folder with any static server (e.g. the VS Code
-**Live Server** extension) and open `index.html`. The default allowed origin is
-`http://127.0.0.1:5500`; adjust `CORS_ALLOWED_ORIGINS` if your server uses a
-different port. The browser must send cookies, so the frontend calls the API with
-credentials included.
+The backend serves the frontend itself (WhiteNoise, same origin as the API), so
+after `python manage.py runserver` just open **<http://127.0.0.1:8000/>** — no
+second server needed. `frontend/shared/js/config.js` uses a relative
+`API_BASE_URL = "/api/"`, so it works in both development and production.
+
+To serve the frontend separately instead (e.g. VS Code **Live Server** on
+`http://127.0.0.1:5500`), set `API_BASE_URL` back to the absolute
+`http://127.0.0.1:8000/api/` in `config.js` and keep that origin in
+`CORS_ALLOWED_ORIGINS`. The browser must send cookies, so the frontend calls the
+API with credentials included.
+
+## Deployment
+
+A production Docker stack is included — `docker-compose.yml`,
+`backend/Dockerfile`, `Caddyfile` — running Caddy (auto-HTTPS) →
+gunicorn/Django → SQLite, plus a yt-dlp PO-token sidecar. Configure
+`backend/.env` for production (`DEBUG=False`, a real `SECRET_KEY`, `DOMAIN`,
+`ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`) and run `docker compose up -d --build`.
 
 ## API endpoints
 
