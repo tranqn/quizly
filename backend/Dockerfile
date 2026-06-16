@@ -27,7 +27,11 @@ WORKDIR /app
 # Install Python deps. yt-dlp tracks YouTube changes closely, so use the nightly
 # channel; the bgutil plugin lets yt-dlp fetch PO tokens from the sidecar.
 COPY backend/requirements.txt .
-RUN pip install -r requirements.txt \
+# Install CPU-only PyTorch first so openai-whisper doesn't pull the multi-GB CUDA
+# build (this VM has no GPU). Saves ~4-5 GB of image size and avoids filling the
+# disk. Once torch is satisfied, the requirements install reuses it.
+RUN pip install torch --index-url https://download.pytorch.org/whl/cpu \
+    && pip install -r requirements.txt \
     && pip install -U --pre "yt-dlp[default]" \
     && pip install bgutil-ytdlp-pot-provider
 
