@@ -19,7 +19,7 @@ services:
     volumes:
       - sqlite-data:/app/data          # persists the SQLite database
       - whisper-cache:/home/app/.cache # persists downloaded Whisper models
-      - ./secrets:/secrets:ro          # mount cookies.txt here (see .env)
+      - ./secrets:/secrets             # cookies.txt; rw so yt-dlp can refresh it
     depends_on:
       - potoken
     restart: unless-stopped
