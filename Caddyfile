@@ -1,0 +1,7 @@
+# Automatic HTTPS via Let's Encrypt for the configured domain. Caddy terminates
+# TLS and reverse-proxies to gunicorn, forwarding X-Forwarded-Proto so Django's
+# secure-cookie / SSL settings work behind the proxy.
+{$DOMAIN} {
+	encode gzip
+	reverse_proxy app:8000
+}

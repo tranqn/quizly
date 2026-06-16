@@ -1,0 +1,48 @@
+# Quizly production stack: Caddy (auto-HTTPS) -> gunicorn/Django -> SQLite,
+# with a PO-token sidecar to keep yt-dlp working from a server IP.
+services:
+  # Proof-of-Origin token provider for yt-dlp (YouTube anti-bot). The app's
+  # YTDLP_POT_BASE_URL points here.
+  potoken:
+    image: brainicism/bgutil-ytdlp-pot-provider:latest
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file: backend/.env
+    environment:
+      - FRONTEND_DIR=/frontend
+      - SQLITE_PATH=/app/data/db.sqlite3
+      - YTDLP_POT_BASE_URL=http://potoken:4416
+    volumes:
+      - sqlite-data:/app/data          # persists the SQLite database
+      - whisper-cache:/home/app/.cache # persists downloaded Whisper models
+      - ./secrets:/secrets:ro          # mount cookies.txt here (see .env)
+    depends_on:
+      - potoken
+    restart: unless-stopped
+    expose:
+      - "8000"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN:-quizly.example.com}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - app
+
+volumes:
+  sqlite-data:
+  whisper-cache:
+  caddy-data:
+  caddy-config:
