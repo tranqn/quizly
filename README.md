@@ -27,10 +27,12 @@ and talks to the backend at `http://127.0.0.1:8000/api/`.
   the audio track. Verify with `ffmpeg -version`.
   - macOS: `brew install ffmpeg` · Debian/Ubuntu: `sudo apt install ffmpeg`
 - A **Gemini API key** (free tier) from <https://aistudio.google.com/apikey>.
-- **A JavaScript runtime (optional, recommended)** — `deno`, `bun` or `node`.
-  yt-dlp uses it to solve YouTube's JS challenges; it deprecates running without
-  one ("some formats may be missing"). Audio extraction usually works without it,
-  so it is optional locally. The Docker image bundles `bun`.
+- **A JavaScript runtime (optional, recommended)** — **`deno`** (yt-dlp
+  auto-enables only deno by default; `bun`/`node` need an explicit
+  `--js-runtimes` flag). yt-dlp uses it to solve YouTube's JS challenges and
+  deprecates running without one ("some formats may be missing"). Audio
+  extraction often works without it locally, so it is optional. The Docker image
+  bundles `deno`.
 
 ## Backend setup
 

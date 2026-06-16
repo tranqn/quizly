@@ -14,11 +14,12 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-# Bun: a JavaScript runtime for yt-dlp's YouTube JS-challenge solver. yt-dlp
-# deprecates running without one and warns that "some formats may be missing"
-# (signature deciphering / throttling). Audio extraction often works without it,
-# but a runtime is recommended insurance. Bun is a single static binary.
-COPY --from=oven/bun:1 /usr/local/bin/bun /usr/local/bin/bun
+# Deno: JavaScript runtime for yt-dlp's YouTube JS-challenge solver. yt-dlp
+# auto-enables ONLY deno by default (other runtimes such as bun/node require an
+# explicit --js-runtimes flag), so deno is the zero-config choice. Without a
+# usable runtime yt-dlp warns "No supported JavaScript runtime could be found"
+# and may miss formats or get throttled. Single static binary, bundled solver.
+COPY --from=denoland/deno:bin /deno /usr/local/bin/deno
 
 RUN useradd --create-home --uid 1000 app
 WORKDIR /app
