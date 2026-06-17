@@ -82,7 +82,11 @@ function isOlderThan7Days(dateString) {
 }
 
 function getEmbededURL(url) {
-  const match = url.match(/v=([^&]+)/);
+  // Accept all common YouTube URL shapes: watch?v=ID, youtu.be/ID, /embed/ID,
+  // /shorts/ID, /live/ID (with or without extra query params). IDs are 11 chars.
+  const match = url.match(
+    /(?:v=|\/(?:embed|shorts|live)\/|youtu\.be\/)([A-Za-z0-9_-]{11})/
+  );
   if (match) {
     return `https://www.youtube.com/embed/${match[1]}`;
   }
