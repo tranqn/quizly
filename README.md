@@ -83,6 +83,43 @@ gunicorn/Django → SQLite, plus a yt-dlp PO-token sidecar. Configure
 `backend/.env` for production (`DEBUG=False`, a real `SECRET_KEY`, `DOMAIN`,
 `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`) and run `docker compose up -d --build`.
 
+## YouTube extraction & blocking
+
+YouTube throttles or blocks requests from datacenter IPs ("Sign in to confirm
+you're not a bot"), so on a server `yt-dlp` needs help. The defenses are layered
+and all driven by environment variables, so the baseline works out of the box and
+you only escalate if a block actually appears:
+
+**Enabled by default (no setup):**
+
+- **Current yt-dlp** — installed from the nightly channel in the image; stale
+  yt-dlp is the most common cause of failures.
+- **JS runtime (`deno`)** — bundled in the image to solve YouTube's JS
+  challenges. yt-dlp auto-enables only deno, hence deno (not bun/node).
+- **PO-token sidecar** — the `potoken` service (`bgutil-ytdlp-pot-provider`)
+  supplies Proof-of-Origin tokens; the app points at it via `YTDLP_POT_BASE_URL`.
+
+| Variable | Purpose |
+| --- | --- |
+| `YTDLP_POT_BASE_URL` | PO-token provider URL (set to the sidecar in Docker) |
+| `YTDLP_PLAYER_CLIENTS` | Force specific player clients. **Leave empty** — forcing them (e.g. `tv`) tends to break extraction; yt-dlp's own choice is best |
+| `YTDLP_COOKIEFILE` | Path to a Netscape `cookies.txt` (escalation, see below) |
+| `YTDLP_PROXY` | Residential/rotating proxy (last-resort escalation) |
+
+**Escalation, only if you still get blocked:**
+
+1. **Account cookies** — export a `cookies.txt` from a browser logged into a
+   **throwaway** Google account (never your main one), place it at
+   `secrets/cookies.txt`, set `YTDLP_COOKIEFILE=/secrets/cookies.txt`, and
+   `docker compose up -d`. The `./secrets` volume is mounted read-write so yt-dlp
+   can refresh the cookies. Refresh the file when blocks reappear.
+2. **Residential proxy** — set `YTDLP_PROXY` to leave the datacenter IP range
+   entirely. The most reliable fix, but paid.
+
+If extraction fails, the API returns `500` with a JSON `detail` naming the stage
+(download vs. AI). Server-side YouTube extraction is an ongoing maintenance topic;
+keeping yt-dlp current handles most issues.
+
 ## API endpoints
 
 Base URL: `http://127.0.0.1:8000/api/`
