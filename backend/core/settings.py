@@ -200,6 +200,13 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 
+# Use the browser-default referrer policy instead of Django's stricter
+# "same-origin": the latter omits the Referer header on cross-origin requests,
+# which breaks embedded YouTube players (player Error 153 — YouTube validates the
+# embedding domain via the referer). This still only sends the origin (not the
+# full URL) to third parties.
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+
 # Production security hardening. Active when DEBUG=False, assuming a
 # TLS-terminating reverse proxy (Caddy/nginx) that forwards X-Forwarded-Proto.
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
