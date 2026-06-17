@@ -1,3 +1,15 @@
+// Parse a response body as JSON without crashing on an empty / non-JSON body
+// (e.g. a 502 from the proxy while the backend restarts, or a 204). Returns {}.
+async function parseJsonSafe(response) {
+  const text = await response.text();
+  if (!text) return {};
+  try {
+    return JSON.parse(text);
+  } catch {
+    return {};
+  }
+}
+
 const inputs = document.querySelectorAll("input");
 const checkboxTerms = document.querySelector('input[name="terms"]');
 const pwToggle = document.getElementById("input-lock-password");
@@ -75,8 +87,9 @@ async function loginUser(event) {
     });
 
     if (!response.ok) {
-      let responseData = await response.json();
-      showToastMessage(true, `Login failed: ${responseData.detail}`);
+      let responseData = await parseJsonSafe(response);
+      const reason = responseData.detail || `server error (${response.status})`;
+      showToastMessage(true, `Login failed: ${reason}`);
       return;
     }
 
@@ -109,10 +122,17 @@ async function signUpUser(event) {
       body: JSON.stringify(body),
     });
 
-    const data = await response.json();
+    const data = await parseJsonSafe(response);
 
     if (!response.ok) {
-      showToastMessage(true, `Register failed: ${data.username} `);
+      const reason =
+        data.detail ||
+        data.username ||
+        data.email ||
+        data.password ||
+        data.confirmed_password ||
+        `server error (${response.status})`;
+      showToastMessage(true, `Register failed: ${reason}`);
       return;
     }
 
