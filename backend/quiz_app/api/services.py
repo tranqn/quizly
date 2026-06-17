@@ -42,6 +42,7 @@ def _ydl_options(target):
         'outtmpl': str(target),
         'quiet': True,
         'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3'}],
+        'noplaylist': True,  # a &list=/radio URL must yield only the single video
         'sleep_interval_requests': 1,  # light throttling vs rate-based detection
         'extractor_args': {},
     }
