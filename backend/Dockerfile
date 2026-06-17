@@ -14,12 +14,12 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-# Deno: JavaScript runtime for yt-dlp's YouTube JS-challenge solver. yt-dlp
-# auto-enables ONLY deno by default (other runtimes such as bun/node require an
-# explicit --js-runtimes flag), so deno is the zero-config choice. Without a
-# usable runtime yt-dlp warns "No supported JavaScript runtime could be found"
-# and may miss formats or get throttled. Single static binary, bundled solver.
-COPY --from=denoland/deno:bin /deno /usr/local/bin/deno
+# No JS runtime is bundled: typical audio extraction works without one (verified
+# with/without -> identical download). yt-dlp prints a "No supported JavaScript
+# runtime" deprecation warning, which is harmless here. If a specific video ever
+# fails with "some formats may be missing", add deno (the only runtime yt-dlp
+# auto-enables) by uncommenting the next line:
+#   COPY --from=denoland/deno:bin /deno /usr/local/bin/deno
 
 RUN useradd --create-home --uid 1000 app
 WORKDIR /app

@@ -27,12 +27,10 @@ and talks to the backend at `http://127.0.0.1:8000/api/`.
   the audio track. Verify with `ffmpeg -version`.
   - macOS: `brew install ffmpeg` · Debian/Ubuntu: `sudo apt install ffmpeg`
 - A **Gemini API key** (free tier) from <https://aistudio.google.com/apikey>.
-- **A JavaScript runtime (optional, recommended)** — **`deno`** (yt-dlp
-  auto-enables only deno by default; `bun`/`node` need an explicit
-  `--js-runtimes` flag). yt-dlp uses it to solve YouTube's JS challenges and
-  deprecates running without one ("some formats may be missing"). Audio
-  extraction often works without it locally, so it is optional. The Docker image
-  bundles `deno`.
+- **A JavaScript runtime (optional)** — `deno`. yt-dlp uses it to solve
+  YouTube's JS challenges and prints a deprecation warning without one, but
+  typical audio extraction works fine without it, so the project ships without a
+  bundled runtime. Add `deno` only if specific videos fail (see below).
 
 ## Backend setup
 
@@ -94,10 +92,13 @@ you only escalate if a block actually appears:
 
 - **Current yt-dlp** — installed from the nightly channel in the image; stale
   yt-dlp is the most common cause of failures.
-- **JS runtime (`deno`)** — bundled in the image to solve YouTube's JS
-  challenges. yt-dlp auto-enables only deno, hence deno (not bun/node).
 - **PO-token sidecar** — the `potoken` service (`bgutil-ytdlp-pot-provider`)
   supplies Proof-of-Origin tokens; the app points at it via `YTDLP_POT_BASE_URL`.
+
+No JavaScript runtime is bundled — typical audio extraction works without one. If
+a video fails with "some formats may be missing", add `deno` to the image
+(`COPY --from=denoland/deno:bin /deno /usr/local/bin/deno`); it's the only
+runtime yt-dlp auto-enables.
 
 | Variable | Purpose |
 | --- | --- |
