@@ -1,8 +1,11 @@
-# Quizly production stack: Caddy (auto-HTTPS) -> gunicorn/Django -> SQLite,
-# with a PO-token sidecar to keep yt-dlp working from a server IP.
+# Quizly Docker stack — one file, two modes via a Compose profile.
+#
+#   LOCAL  : docker compose up --build            -> http://localhost:8000
+#            (app + PO-token sidecar; no TLS; set DEBUG=True in backend/.env)
+#   PROD   : docker compose --profile prod up -d --build
+#            (adds the Caddy auto-HTTPS proxy; set DEBUG=False, DOMAIN, ... in .env)
 services:
-  # Proof-of-Origin token provider for yt-dlp (YouTube anti-bot). The app's
-  # YTDLP_POT_BASE_URL points here.
+  # Proof-of-Origin token provider for yt-dlp (YouTube anti-bot).
   potoken:
     image: brainicism/bgutil-ytdlp-pot-provider:latest
     restart: unless-stopped
@@ -23,11 +26,16 @@ services:
     depends_on:
       - potoken
     restart: unless-stopped
-    expose:
-      - "8000"
+    # Bound to localhost: locally this is the app's address (http://localhost:8000);
+    # in prod Caddy reaches it over the internal network, so 127.0.0.1 keeps port
+    # 8000 off the VM's public interface.
+    ports:
+      - "127.0.0.1:8000:8000"
 
+  # Production only (enabled by `--profile prod`): TLS termination + reverse proxy.
   caddy:
     image: caddy:2
+    profiles: ["prod"]
     restart: unless-stopped
     ports:
       - "80:80"
