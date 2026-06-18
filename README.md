@@ -32,54 +32,65 @@ and talks to the backend at `http://127.0.0.1:8000/api/`.
   typical audio extraction works fine without it, so the project ships without a
   bundled runtime. Add `deno` only if specific videos fail (see below).
 
-## Backend setup
+## Quickstart (Docker)
+
+The whole app — backend **and** frontend — runs from one Docker stack. Django
+serves the frontend at the same origin as the API, so there is **no separate
+frontend setup**.
 
 ```bash
-cd backend
-python -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-
-cp .env.example .env               # then edit .env and set GEMINI_API_KEY
-python manage.py migrate
-python manage.py createsuperuser   # optional, for the admin panel
-python manage.py runserver
+cp backend/.env.example backend/.env   # then set GEMINI_API_KEY (see below)
+docker compose up --build
 ```
 
-The API is now served at `http://127.0.0.1:8000/api/`.
+Open **<http://localhost:8000/>**, register, log in, paste a YouTube URL — a quiz
+is generated. No other configuration is needed for local use.
+
+> The default `.env` has `DEBUG=True`; only `GEMINI_API_KEY` must be filled in for
+> quiz generation. The first build downloads PyTorch + the Whisper model, so it
+> takes a few minutes.
 
 ### Environment variables (`backend/.env`)
 
-| Variable               | Purpose                                              |
-| ---------------------- | ---------------------------------------------------- |
-| `SECRET_KEY`           | Django secret key                                    |
-| `DEBUG`                | `True` locally, `False` in production                |
-| `ALLOWED_HOSTS`        | Comma-separated allowed hosts                        |
-| `CORS_ALLOWED_ORIGINS` | Frontend origins allowed to send credentialed calls  |
-| `GEMINI_API_KEY`       | Gemini Flash API key (quiz generation)               |
-| `GEMINI_MODEL`         | Gemini model id (default `gemini-2.5-flash`)         |
-| `WHISPER_MODEL`        | Whisper model size (`tiny`…`large`, default `base`)  |
+| Variable | Purpose |
+| --- | --- |
+| `GEMINI_API_KEY` | Gemini Flash API key — **required** for quiz generation ([get one](https://aistudio.google.com/apikey)) |
+| `DEBUG` | `True` locally, `False` in production |
+| `SECRET_KEY` | Django secret key (required when `DEBUG=False`) |
+| `ALLOWED_HOSTS` | Comma-separated allowed hosts (production) |
+| `GEMINI_MODEL` | Gemini model id (default `gemini-2.5-flash`) |
+| `WHISPER_MODEL` | Whisper model size (`tiny`…`large`, default `base`) |
 
-## Running the frontend
+The `YTDLP_*` anti-bot knobs are covered under *YouTube extraction* below.
 
-The backend serves the frontend itself (WhiteNoise, same origin as the API), so
-after `python manage.py runserver` just open **<http://127.0.0.1:8000/>** — no
-second server needed. `frontend/shared/js/config.js` uses a relative
-`API_BASE_URL = "/api/"`, so it works in both development and production.
+## Run without Docker (optional)
 
-To serve the frontend separately instead (e.g. VS Code **Live Server** on
-`http://127.0.0.1:5500`), set `API_BASE_URL` back to the absolute
-`http://127.0.0.1:8000/api/` in `config.js` and keep that origin in
-`CORS_ALLOWED_ORIGINS`. The browser must send cookies, so the frontend calls the
-API with credentials included.
+For backend development in a local virtualenv (requires Python 3.13 + FFmpeg):
 
-## Deployment
+```bash
+cd backend
+python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env                                  # set GEMINI_API_KEY
+python manage.py migrate
+python manage.py runserver                            # serves API + frontend
+```
 
-A production Docker stack is included — `docker-compose.yml`,
-`backend/Dockerfile`, `Caddyfile` — running Caddy (auto-HTTPS) →
-gunicorn/Django → SQLite, plus a yt-dlp PO-token sidecar. Configure
-`backend/.env` for production (`DEBUG=False`, a real `SECRET_KEY`, `DOMAIN`,
-`ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`) and run `docker compose up -d --build`.
+Then open **<http://127.0.0.1:8000/>**.
+
+## Deployment (production)
+
+The same stack runs in production via the **`prod` profile**, which adds the
+Caddy auto-HTTPS reverse proxy in front of gunicorn:
+
+```bash
+# in backend/.env: DEBUG=False, a real SECRET_KEY, DOMAIN, ALLOWED_HOSTS,
+#                  CSRF_TRUSTED_ORIGINS, SECURE_SSL_REDIRECT=True
+docker compose --profile prod up -d --build
+```
+
+Caddy obtains a Let's Encrypt certificate for `DOMAIN` automatically (point the
+domain's DNS at the host first).
 
 ## YouTube extraction & blocking
 
@@ -112,8 +123,9 @@ runtime yt-dlp auto-enables.
 1. **Account cookies** — export a `cookies.txt` from a browser logged into a
    **throwaway** Google account (never your main one), place it at
    `secrets/cookies.txt`, set `YTDLP_COOKIEFILE=/secrets/cookies.txt`, and
-   `docker compose up -d`. The `./secrets` volume is mounted read-write so yt-dlp
-   can refresh the cookies. Refresh the file when blocks reappear.
+   re-up (`docker compose --profile prod up -d` in production). The `./secrets`
+   volume is read-write so yt-dlp can refresh the cookies — refresh the file when
+   blocks reappear.
 2. **Residential proxy** — set `YTDLP_PROXY` to leave the datacenter IP range
    entirely. The most reliable fix, but paid.
 
