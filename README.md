@@ -63,21 +63,6 @@ is generated. No other configuration is needed for local use.
 
 The `YTDLP_*` anti-bot knobs are covered under *YouTube extraction* below.
 
-## Run without Docker (optional)
-
-For backend development in a local virtualenv (requires Python 3.13 + FFmpeg):
-
-```bash
-cd backend
-python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-cp .env.example .env                                  # set GEMINI_API_KEY
-python manage.py migrate
-python manage.py runserver                            # serves API + frontend
-```
-
-Then open **<http://127.0.0.1:8000/>**.
-
 ## Deployment (production)
 
 The same stack runs in production via the **`prod` profile**, which adds the
