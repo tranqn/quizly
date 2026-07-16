@@ -74,11 +74,16 @@ def download_audio(url):
     import yt_dlp
 
     target = Path(tempfile.mkdtemp()) / 'audio.%(ext)s'
+    ydl = yt_dlp.YoutubeDL(_ydl_options(target))
     try:
-        with yt_dlp.YoutubeDL(_ydl_options(target)) as ydl:
-            ydl.download([url])
+        ydl.download([url])
     except yt_dlp.utils.DownloadError as exc:
         raise AudioDownloadError() from exc
+    finally:
+        try:
+            ydl.close()
+        except OSError:
+            pass  # cookiefile isn't writable in this deployment; the download itself already succeeded
     return target.with_suffix('.mp3')
 
 
