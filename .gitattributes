@@ -1,0 +1,3 @@
+# Linguist: the frontend is the course-provided template, the backend is my work.
+# Without this the language bar shows CSS instead of the Django/Whisper/Gemini API.
+frontend/** linguist-vendored
