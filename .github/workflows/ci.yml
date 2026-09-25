@@ -49,7 +49,9 @@ jobs:
   deploy:
     name: Deploy to Hetzner
     needs: [backend]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # workflow_dispatch is allowed too: dispatching needs write access on the
+    # repo, so it is a manual redeploy button for me and not a fork's way in.
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     runs-on: [self-hosted, hetzner, deploy]
     concurrency:
       group: deploy-quizly
