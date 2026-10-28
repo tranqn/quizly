@@ -95,3 +95,56 @@ class GuestReadOnlyTests(TestCase):
         client.force_authenticate(user)
         response = client.patch(f'/api/quizzes/{quiz.id}/', {'title': 'Neu'})
         self.assertEqual(response.status_code, 200)
+
+
+class GuestNameCollisionTests(TestCase):
+    """A real account that already uses the guest name must stay private."""
+
+    def setUp(self):
+        cache.clear()
+        self.owner = User.objects.create_user(settings.GUEST_USERNAME, password='pw-12345678')
+
+    def test_seed_leaves_real_account_alone(self):
+        call_command('seed_demo', stdout=mock.MagicMock(), stderr=mock.MagicMock())
+        self.owner.refresh_from_db()
+        self.assertTrue(self.owner.has_usable_password())
+        self.assertEqual(self.owner.quizzes.count(), 0)
+
+    def test_guest_login_refuses_real_account(self):
+        response = APIClient().post('/api/guest-login/')
+        self.assertEqual(response.status_code, 503)
+        self.assertNotIn('access_token', response.cookies)
+
+    def test_registration_rejects_guest_name(self):
+        response = APIClient().post('/api/register/', {
+            'username': settings.GUEST_USERNAME.upper(),
+            'email': 'x@example.com',
+            'password': 'Passwort1',
+            'confirmed_password': 'Passwort1',
+        })
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('username', response.data)
+
+
+class PipelineErrorCodeTests(TestCase):
+    """The frontend tells pipeline failures apart by `code`, not by wording."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.client.force_authenticate(User.objects.create_user('anna', password='pw-12345678'))
+
+    def post_with(self, error):
+        with mock.patch('quiz_app.api.views.create_quiz_from_url', side_effect=error()):
+            return self.client.post('/api/quizzes/', {'url': 'https://youtu.be/abcdefghijk'})
+
+    def test_audio_download_code(self):
+        from .api.services import AudioDownloadError
+        response = self.post_with(AudioDownloadError)
+        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.data['code'], 'audio_download_failed')
+        self.assertIn('detail', response.data)
+
+    def test_generation_code(self):
+        from .api.services import QuizGenerationError
+        response = self.post_with(QuizGenerationError)
+        self.assertEqual(response.data['code'], 'quiz_generation_failed')

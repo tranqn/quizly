@@ -1,4 +1,5 @@
 """Serializers for registration and login."""
+from django.conf import settings
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
@@ -12,6 +13,12 @@ class RegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'email', 'password', 'confirmed_password']
         extra_kwargs = {'password': {'write_only': True}}
+
+    def validate_username(self, value):
+        """Keep the shared guest account name out of reach of real users."""
+        if value.lower() == settings.GUEST_USERNAME.lower():
+            raise serializers.ValidationError('This username is reserved.')
+        return value
 
     def validate_email(self, value):
         """Reject e-mail addresses that are already registered."""

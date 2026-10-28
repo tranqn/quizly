@@ -5,7 +5,8 @@
 set -e
 
 python manage.py migrate --noinput
-python manage.py seed_demo
+# Optional feature: a failed seed must not keep the site down.
+python manage.py seed_demo || echo "seed_demo failed, starting without guest account" >&2
 python manage.py collectstatic --noinput
 
 exec gunicorn core.wsgi:application \
