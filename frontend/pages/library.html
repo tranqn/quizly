@@ -1,83 +1,104 @@
 <!doctype html>
-<html lang="en">
+<html lang="de">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Quizly-Library</title>
-    <link rel="stylesheet" href="../styles.css" />
+    <title>Bibliothek · Quizly</title>
+    <meta name="description" content="Deine Quizly-Bibliothek: neue Quizze aus YouTube-Videos erstellen und vorhandene lösen." />
+    <link rel="stylesheet" href="../shared/css/fonts.css" />
     <link rel="stylesheet" href="../shared/css/variables.css" />
     <link rel="stylesheet" href="../shared/css/standart.css" />
-    <link rel="stylesheet" href="../shared/css/auth.css" />
-    <link rel="stylesheet" href="../shared/css/toastmsg.css" />
-    <link rel="stylesheet" href="../shared/css/fonts.css" />
+    <link rel="stylesheet" href="../shared/css/toastmsg.css" media="print" onload="this.media='all'" />
+    <link rel="stylesheet" href="../shared/css/app.css" />
     <link rel="stylesheet" href="../shared/css/library.css" />
-    <link
-      rel="icon"
-      href="../assets/icons/robot_default.png"
-      type="image/x-icon"
-    />
-    <script src="../shared/js/helper.js"></script>
-    <script src="../shared/js/config.js"></script>
+    <link rel="icon" href="../assets/icons/robot_default.png" type="image/png" />
+    <script src="../shared/js/config.js" defer></script>
+    <script src="../shared/js/helper.js" defer></script>
+    <script src="../shared/js/session.js" defer></script>
+    <script src="../shared/js/youtube.js" defer></script>
+    <script src="../shared/js/template.js" defer></script>
     <script src="../shared/js/auth.js" defer></script>
     <script src="../shared/js/api.js" defer></script>
-    <script src="../shared/js/template.js"></script>
     <script src="../shared/js/library.js" defer></script>
   </head>
-  <body onload="init()" class="pos_rel">
-    <section>
-      <div class="background-wave">
-        <img src="/assets/icons/wave.png" alt="" />
-      </div>
-      <div class="overlay d_none">
-        <img src="/assets/img/loadingspinner.gif" alt="" />
-      </div>
-    </section>
-    <header>
-      <div id="header" class="z_5"></div>
-    </header>
+  <body class="app-page" onload="init()">
+    <a class="skip-link" href="#main">Zum Inhalt springen</a>
+    <header id="app-header" class="app-header"></header>
 
-    <main class="main-library">
-      <article class="d_flex_cc_ac flex_dir_col input-container pos_rel z_5">
-        <section class="d_flex_cc_ac flex_dir_col">
-          <div class="w_full d_flex_cc_ac pad_bot_48 headline flex_dir_col">
-            <h1>AI-Powered</h1>
-            <h3>Quiz Generator</h3>
-          </div>
-          <div class="w_full pad_bot_48">
+    <main id="main" class="app-main">
+      <section class="create" aria-labelledby="create-title">
+        <h1 id="create-title">Neues Quiz erstellen</h1>
+        <p id="guest-notice" class="app-notice" hidden>
+          Du bist im Gastmodus. Die Beispiel-Quizze unten kannst du lösen. Eigene Quizze erstellst
+          du mit einem <a href="/pages/registration.html">kostenlosen Konto</a>.
+        </p>
+
+        <form id="create-form" class="url-form" novalidate>
+          <fieldset class="url-form__fieldset">
+            <legend class="sr-only">YouTube-Link für ein neues Quiz</legend>
+            <label for="url" class="sr-only">YouTube-Link</label>
             <input
-              type="url"
               id="url"
-              class="input"
-              placeholder="Youtube url"
+              class="url-form__input"
+              type="url"
+              inputmode="url"
+              autocomplete="off"
+              placeholder="https://www.youtube.com/watch?v=…"
+              aria-describedby="url-hint"
             />
-          </div>
-          <button id="start-quiz" class="btn">Generate Quiz</button>
-        </section>
-        <section
-          id="wrapping-container"
-          class="wrapping-container flex_dir_col"
-        >
-          <div class="headline-green">Last quizes</div>
-          <div id="quiz-container-library"></div>
-        </section>
-      </article>
+            <button id="start-quiz" type="submit" class="button button--primary">Quiz erstellen</button>
+          </fieldset>
+          <p id="url-hint" class="url-form__hint" aria-live="polite"></p>
+          <figure class="url-preview" hidden>
+            <img class="url-preview__thumb" alt="" width="160" height="90" />
+            <figcaption>Video erkannt.</figcaption>
+          </figure>
+        </form>
 
-      <section class="background-objects pos_abs">
-        <div class="background-dot1 pos_abs">
-          <img src="/assets/icons/dot1.svg" alt="dots for the background" />
+        <div id="create-progress" class="progress" role="status" hidden>
+          <img src="/assets/icons/robot_default.webp" alt="" width="64" height="53" class="progress__robot" />
+          <div>
+            <p class="progress__title">Dein Quiz entsteht</p>
+            <ol class="progress__steps">
+              <li>Video wird geladen</li>
+              <li>Ton wird transkribiert</li>
+              <li>Fragen werden formuliert</li>
+            </ol>
+            <p class="progress__note">
+              Das dauert je nach Videolänge ein bis drei Minuten. Lass diese Seite so lange offen.
+            </p>
+          </div>
         </div>
-        <div class="background-dot2 pos_abs">
-          <img src="/assets/icons/dot2.svg" alt="dots for the background" />
+      </section>
+
+      <section class="library" aria-labelledby="library-title">
+        <div class="library__head">
+          <h2 id="library-title" tabindex="-1">Deine Quizze</h2>
+          <p id="library-count" class="library__count"></p>
+        </div>
+        <ul id="quiz-list" class="quiz-grid" aria-busy="true"></ul>
+        <div id="library-empty" class="library__state" hidden>
+          <img src="/assets/icons/robot_default.webp" alt="" width="96" height="80" />
+          <p><strong>Noch keine Quizze.</strong></p>
+          <p>Füge oben einen YouTube-Link ein, dann erscheint dein erstes Quiz hier.</p>
+        </div>
+        <div id="library-error" class="library__state" role="alert" hidden>
+          <p><strong>Deine Quizze konnten nicht geladen werden.</strong></p>
+          <button type="button" class="button button--secondary" onclick="renderLibrary()">Erneut versuchen</button>
         </div>
       </section>
     </main>
-    <section class="overlay d_none">
-      <img src="/assets/img/loadingspinner.gif" alt="a loading spinner" />
-    </section>
 
-    <footer class="footer z-6 pos_abs">
-      <a href="./legalnotice.html" class="cu_po">Legal notice</a>
-      <a href="./privacy.html" class="cu_po">Privacy policy</a>
-    </footer>
+    <dialog id="delete-dialog" class="confirm-dialog" aria-labelledby="delete-title">
+      <h2 id="delete-title">Quiz löschen?</h2>
+      <p>„<span id="delete-name"></span>“ wird mit allen Fragen entfernt. Das lässt sich nicht rückgängig machen.</p>
+      <div class="confirm-dialog__actions">
+        <button type="button" class="button button--secondary" onclick="closeDeleteDialog()">Abbrechen</button>
+        <button type="button" class="button button--danger" onclick="confirmDelete()">Löschen</button>
+      </div>
+    </dialog>
+
+    <footer id="footer" class="site-footer"></footer>
+    <img src="/assets/icons/wave.webp" alt="" class="app-wave" loading="lazy" decoding="async" />
   </body>
 </html>
