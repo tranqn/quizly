@@ -3,6 +3,7 @@
 const MORE_QUIZZES_LIMIT = 5;
 
 let currentQuiz = null;
+let hasUnsavedEdits = false;
 
 async function init() {
   initAppHeader();
@@ -61,7 +62,12 @@ function setupEditForm() {
   }
   document.getElementById("headline").value = currentQuiz.title;
   document.getElementById("description").value = currentQuiz.description;
-  document.getElementById("edit-form").addEventListener("submit", saveQuiz);
+  const form = document.getElementById("edit-form");
+  form.addEventListener("submit", saveQuiz);
+  form.addEventListener("input", () => (hasUnsavedEdits = true));
+  window.addEventListener("beforeunload", (event) => {
+    if (hasUnsavedEdits) event.preventDefault();
+  });
 }
 
 async function saveQuiz(event) {
@@ -86,6 +92,7 @@ async function saveQuiz(event) {
     return;
   }
   currentQuiz = { ...currentQuiz, ...updated };
+  hasUnsavedEdits = false;
   renderQuiz();
   status.textContent = "Gespeichert.";
 }

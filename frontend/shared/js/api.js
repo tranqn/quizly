@@ -24,11 +24,14 @@ async function getCreateErrorMessage(response) {
     return "Im Gastmodus kannst du keine eigenen Quizze erstellen.";
   }
   const body = await parseJsonSafe(response);
-  // Both pipeline errors are 500; only the detail text tells them apart.
-  if ((body.detail || "").includes("video audio")) {
+  if (body.code === "audio_download_failed") {
     return "Das Video konnte nicht geladen werden. Ist es öffentlich und nicht altersbeschränkt?";
   }
-  return "Die KI ist gerade ausgelastet. Bitte versuche es in einer Minute noch einmal.";
+  if (body.code === "quiz_generation_failed") {
+    return "Die KI ist gerade ausgelastet. Bitte versuche es in einer Minute noch einmal.";
+  }
+  // No JSON from the app: the proxy answered (timeout, restart during deploy).
+  return "Der Server hat nicht rechtzeitig geantwortet. Bitte versuche es in ein paar Minuten noch einmal.";
 }
 
 async function removeQuiz(id) {

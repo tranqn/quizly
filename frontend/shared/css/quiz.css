@@ -46,6 +46,7 @@
 }
 
 .quiz-progress__label {
+  font-variant-numeric: tabular-nums;
   margin: 0 0 var(--space-2);
   font-family: var(--font-heading);
   font-weight: 600;
@@ -147,6 +148,19 @@
   outline-offset: 3px;
 }
 
+.answer__text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.question__title,
+.quiz-play__title,
+.review__question,
+.review__answer,
+.review__correct {
+  overflow-wrap: anywhere;
+}
+
 .answer__key {
   flex: none;
   display: grid;
@@ -160,7 +174,20 @@
   color: var(--color-primary);
 }
 
-.answer:has(input:checked) .answer__key {
+.answer:has(input:checked) .answer__text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.question__title,
+.quiz-play__title,
+.review__question,
+.review__answer,
+.review__correct {
+  overflow-wrap: anywhere;
+}
+
+.answer__key {
   background: var(--color-primary);
   color: var(--color-on-primary);
 }
@@ -223,6 +250,7 @@
 }
 
 .score-ring span {
+  font-variant-numeric: tabular-nums;
   font-family: var(--font-heading);
   font-size: var(--font-size-32);
   font-weight: 700;
@@ -238,6 +266,12 @@
 
 .result-summary h1:focus {
   outline: none;
+}
+
+.result-summary h1:focus-visible {
+  outline: 3px solid var(--focus-ring-color);
+  outline-offset: 6px;
+  border-radius: 4px;
 }
 
 .result-summary__text {

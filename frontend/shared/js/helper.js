@@ -21,13 +21,29 @@ function hideFormErrors(array) {
   });
 }
 
+/**
+ * One live region that exists from page load on. Screen readers only announce
+ * changes inside a region they already know, not regions inserted later.
+ */
+function getToastRegion() {
+  let region = document.getElementById("toast-region");
+  if (!region) {
+    region = document.createElement("div");
+    region.id = "toast-region";
+    region.setAttribute("aria-live", "polite");
+    document.body.appendChild(region);
+  }
+  return region;
+}
+
+document.addEventListener("DOMContentLoaded", getToastRegion);
+
 function showToastMessage(error = true, msg = []) {
   const toast = document.createElement("div");
   toast.className = "toast_msg d_flex_cc_ac";
   toast.innerHTML = getToastHTML(msg, error);
   toast.setAttribute("error", error);
-  toast.setAttribute("role", error ? "alert" : "status");
-  document.body.appendChild(toast);
+  getToastRegion().appendChild(toast);
 
   setTimeout(() => {
     toast.remove();
@@ -38,8 +54,7 @@ function showToastHint(msg = []) {
   const toast = document.createElement("div");
   toast.className = "toast_msg d_flex_cc_ac";
   toast.innerHTML = getToastHintHTML(msg);
-  toast.setAttribute("role", "status");
-  document.body.appendChild(toast);
+  getToastRegion().appendChild(toast);
   toast.setAttribute("hint", true);
 
   setTimeout(() => {
@@ -53,7 +68,7 @@ function getToastHintHTML(msg) {
             <div class="toast_msg_hint">
                 <h3>Hinweis</h3>
                 <p class="w_full">
-                    ${msg}
+                    ${escapeHtml(String(msg))}
                 </p>
             </div>`;
 }
@@ -71,7 +86,7 @@ function getToastHTML(msg, error) {
       : "<li>Das hat geklappt!</li>";
   }
   for (let i = 0; i < msg.length; i++) {
-    msglist += `<li>${msg[i]}</li>`;
+    msglist += `<li>${escapeHtml(String(msg[i]))}</li>`;
   }
 
   return `<div class="toast_msg_left d_flex_cc_ac">
@@ -100,10 +115,10 @@ function formatDate(isoString) {
   }).format(new Date(isoString));
 }
 
+/** The quiz id from the URL, or null unless it is a positive integer. */
 function getQuizID() {
-  let params = new URLSearchParams(window.location.search);
-  const id = params.get("id");
-  return id;
+  const id = new URLSearchParams(window.location.search).get("id");
+  return /^[1-9]\d*$/.test(id ?? "") ? id : null;
 }
 
 function goBack() {
