@@ -1,138 +1,93 @@
 <!doctype html>
-<html lang="en">
+<html lang="de">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Quizly - Quiz</title>
+    <title>Quiz lösen · Quizly</title>
+    <meta name="description" content="Ein Quizly-Quiz lösen und Frage für Frage auswerten." />
+    <link rel="stylesheet" href="/shared/css/fonts.css" />
     <link rel="stylesheet" href="/shared/css/variables.css" />
     <link rel="stylesheet" href="/shared/css/standart.css" />
+    <link rel="stylesheet" href="/shared/css/toastmsg.css" media="print" onload="this.media='all'" />
+    <link rel="stylesheet" href="/shared/css/app.css" />
     <link rel="stylesheet" href="/shared/css/quiz.css" />
-    <link rel="stylesheet" href="../shared/css/toastmsg.css" />
-
-    <script src="/shared/js/helper.js"></script>
-    <script src="/shared/js/config.js"></script>
+    <link rel="icon" href="/assets/icons/robot_default.png" type="image/png" />
+    <script src="/shared/js/config.js" defer></script>
+    <script src="/shared/js/helper.js" defer></script>
+    <script src="/shared/js/session.js" defer></script>
+    <script src="/shared/js/template.js" defer></script>
     <script src="/shared/js/auth.js" defer></script>
     <script src="/shared/js/api.js" defer></script>
-    <script src="/shared/js/header.js"></script>
-    <script src="/shared/js/template.js"></script>
     <script src="/shared/js/quiz.js" defer></script>
-    <link
-      rel="icon"
-      href="/assets/icons/robot_default.png"
-      type="image/x-icon"
-    />
   </head>
-  <body class="quiz-page" onload="initHeader(); initQuiz()">
-    <header>
-      <div id="header" class="z_5"></div>
-    </header>
-    <main class="d_flex_cc_ac">
-      <div class="standard-overlay flex_dir_col">
-        <h2 id="quiz-title">Quiz long name</h2>
+  <body class="app-page" onload="initQuiz()">
+    <a class="skip-link" href="#main">Zum Inhalt springen</a>
+    <header id="app-header" class="app-header"></header>
 
-        <section
-          class="quiz-overlay d_flex_sb_ac flex_dir_col"
-          id="quiz-overlay"
-        >
+    <main id="main" class="app-main quiz-main">
+      <a id="back-link" class="button button--text quiz-back" href="/pages/library.html">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m15 18-6-6 6-6" />
+        </svg>
+        Zur Quiz-Übersicht
+      </a>
+
+      <p id="quiz-loading" class="quiz-state" role="status">Quiz wird geladen …</p>
+      <div id="quiz-error" class="quiz-state" role="alert" hidden>
+        <p>Dieses Quiz gibt es nicht oder es gehört zu einem anderen Konto.</p>
+        <a class="button button--secondary" href="/pages/library.html">Zur Bibliothek</a>
+      </div>
+
+      <section id="quiz-play" class="quiz-play" aria-labelledby="quiz-title" hidden>
+        <p id="quiz-title" class="quiz-play__title"></p>
+
+        <div class="quiz-progress">
+          <p id="question-amount" class="quiz-progress__label"></p>
           <div
-            class="question-container d_flex_cc_ac flex_dir_col w_full gap_24"
+            id="quiz-progress-bar"
+            class="quiz-progress__bar"
+            role="progressbar"
+            aria-labelledby="question-amount"
+            aria-valuemin="0"
           >
-            <div class="d_flex_sb_ac question-row w_full">
-              <div id="back-button" class="cu_po">
-                <img src="/assets/icons/arrow.png" alt="arrow" />
-                Previous question
-              </div>
-              <div id="question-amount"></div>
-            </div>
-            <div class="w_full d_flex_cc_ac flex_dir_col">
-              <h3 id="quiz-question-title">TEST</h3>
-              <div
-                id="quiz-wrapper"
-                class="d_flex_cc_ac flex_dir_col w_full"
-              ></div>
-            </div>
+            <span></span>
           </div>
-          <button class="btn cu_po" id="btn-next-quiz">Next Question</button>
-        </section>
-
-        <section
-          class="result-container d_none d_flex_cc_ac flex_dir_col w_full gap_24"
-          id="result-container"
-        >
-          <div class="head-result d_flex_cc_ac flex_dir_col gap_24">
-            <img src="/assets/icons/bigCheckMark.png" alt="a green checkmark" />
-            <p>Quiz completed !</p>
-          </div>
-          <div class="score d_flex_cc_ac flex_dir_col">
-            <p id="answer">Awesome job - you crushed it !</p>
-            <div class="d_flex_cc_ac flex_dir_row">
-              <h2>Your score is:</h2>
-              <p id="score"></p>
-              <p id="percent"></p>
-            </div>
-          </div>
-          <div class="d_flex_cc_ac gap_24">
-            <button class="btn btn-redo" onclick="redoQuiz()">
-              Redo the quiz
-            </button>
-            <button class="btn btn-answer" onclick="showAnswers()">
-              Answers
-            </button>
-          </div>
-        </section>
-
-        <section
-          class="overview-container d_none d_flex_cc_ac flex_dir_col w_full gap_24"
-          id="overview-container"
-        >
-          <h2>Answers</h2>
-          <div class="flex_dir_col w_full" id="answers-list"></div>
-        </section>
-
-        <section class="d_flex_cc_ac flex_dir_col d_none" id="button-container">
-          <p onclick="showAnswers(true)" class="correct-answers cu_po">
-            View correct answers
-          </p>
-          <div id="overview-container-btns" class="d_flex_sb_ac gap_40">
-            <button onclick="backToOverview()" class="btn btn-back">
-              Back to overview
-            </button>
-            <button onclick="redoQuiz()" class="btn btn-redo-overview">
-              Redo the quiz
-            </button>
-          </div>
-        </section>
-
-        <div
-          class="side-result-container d_none d_flex_cc_ac flex_dir_col pos_abs"
-          id="side-result-container"
-        >
-          <h3>Your result</h3>
-          <div id="correct-answers"></div>
-          <div id="wrong-answers"></div>
         </div>
-      </div>
 
-      <div>
-        <button
-          class="d_flex_cc_ac flex_dir_row pos_abs btn-go-back cu_po gap_24"
-          onclick="backToOverview()"
-        >
-          <img src="/assets/icons/arrow.png" alt="a small back arrow" />
-          <p>Back to quiz view</p>
-        </button>
-      </div>
-      <section
-        class="overview_overlay d_none d_flex_cc_ac flex_dir_col w_full gap_24"
-        id="overview-overlay"
-      >
-        <h2>Your previous quizzes.</h2>
-        <ul id="quizList" class="flex_dir_col gap_24 d_flex_cc_ac"></ul>
+        <fieldset class="question">
+          <legend class="question__legend">
+            <h1 id="question-title" class="question__title" tabindex="-1"></h1>
+          </legend>
+          <div id="answers" class="answers"></div>
+        </fieldset>
+
+        <div class="quiz-nav">
+          <button id="prev-button" type="button" class="button button--text">Vorherige Frage</button>
+          <button id="next-button" type="button" class="button button--primary" disabled>Weiter</button>
+        </div>
+        <p class="quiz-hint">Tipp: Mit 1 bis 4 oder A bis D wählst du eine Antwort, mit Enter geht es weiter.</p>
+      </section>
+
+      <section id="quiz-result" class="quiz-result" aria-labelledby="result-title" hidden>
+        <div class="result-summary">
+          <div id="score-ring" class="score-ring">
+            <span id="score-percent"></span>
+          </div>
+          <div>
+            <h1 id="result-title" tabindex="-1"></h1>
+            <p id="result-text" class="result-summary__text"></p>
+            <div class="result-actions">
+              <button type="button" class="button button--primary" onclick="restartQuiz()">Nochmal lösen</button>
+              <a class="button button--secondary" href="/pages/library.html">Zur Bibliothek</a>
+            </div>
+          </div>
+        </div>
+
+        <h2 class="review__heading">Deine Antworten</h2>
+        <ol id="answer-review" class="review"></ol>
       </section>
     </main>
-    <footer class="footer cu_po z-6 pos_abs">
-      <a href="./legalnotice.html">Legal notice</a>
-      <a href="./privacy.html">Privacy policy</a>
-    </footer>
+
+    <footer id="footer" class="site-footer"></footer>
   </body>
 </html>

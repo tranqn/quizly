@@ -1,427 +1,184 @@
-let answerList = [];
-let currentQuestionNumber = 0;
-let container = document.getElementById("overview-container");
-let resultContainer = document.getElementById("result-container");
-let buttonContainer = document.getElementById("button-container");
-let sideResultContainer = document.getElementById("side-result-container");
-let backButton = document.getElementById("back-button");
-let nextButton = document.getElementById("btn-next-quiz");
-let CURRENTQUIZ;
-let OVERVIEW = false;
+// Quiz lösen: eine Frage nach der anderen, danach Auswertung pro Frage.
 
-document
-  .getElementById("quiz-wrapper")
-  .addEventListener("click", function (event) {
-    const clicked = event.target.closest(".single-answer");
-    if (!clicked) return;
+const ANSWER_KEYS = ["A", "B", "C", "D"];
 
-    document.querySelectorAll(".single-answer.selected").forEach((el) => {
-      el.classList.remove("selected");
-    });
-
-    clicked.classList.add("selected");
-  });
-
-backButton.addEventListener("click", function () {
-  if (currentQuestionNumber <= 0) return;
-  currentQuestionNumber--;
-  initQuiz();
-  restoreSelectedAnswer();
-});
-
-nextButton.addEventListener("click", function () {
-  let answer = document.querySelector(".selected");
-  if (!answer) return;
-
-  let choosenAnswer = answer.querySelector("p:last-child").textContent;
-  answerList[currentQuestionNumber] = choosenAnswer;
-
-  if (currentQuestionNumber < CURRENTQUIZ.questions.length - 1) {
-    currentQuestionNumber++;
-    initQuiz();
-    restoreSelectedAnswer();
-  } else {
-    document.getElementById("quiz-overlay").classList.add("d_none");
-    document.getElementById("result-container").classList.remove("d_none");
-    evaluateResult();
-  }
-});
-
-function restoreSelectedAnswer() {
-  let selectedLabel = answerList[currentQuestionNumber];
-  if (!selectedLabel) return;
-
-  let answers = document.querySelectorAll(".single-answer");
-  answers.forEach((answer) => {
-    let label = answer.querySelector("p:last-child").textContent;
-    if (label === selectedLabel) {
-      answer.classList.add("selected");
-    } else {
-      answer.classList.remove("selected");
-    }
-  });
-}
-
-async function showOverview() {
-  const params = new URLSearchParams(window.location.search);
-  OVERVIEW = params.get("isOverview") === "true";
-
-  if (OVERVIEW) {
-    document.getElementById("overview-overlay").classList.remove("d_none");
-    document.getElementById("quiz-overlay").classList.add("d_none");
-    document.getElementById("quiz-title").classList.add("d_none");
-    await renderQuizList();
-  }
-}
-
-async function renderQuizList() {
-  const quizzes = await loadQuizzes();
-  const quizList = document.getElementById("quizList");
-  quizList.innerHTML = "";
-  quizzes.forEach((quiz) => {
-    quizList.appendChild(createQuizLiItem(quiz));
-  });
-}
-
-function createQuizLiItem(quiz) {
-  let li = document.createElement("li");
-  let span = document.createElement("span");
-  let img = document.createElement("img");
-  span.setAttribute(
-    "onclick",
-    `window.location.href='/pages/quizoverview.html?id=${quiz.id}'`,
-  );
-  span.innerHTML = quiz.title;
-  img.src = "/assets/icons/delete.png";
-  img.alt = "delete quiz";
-  img.classList.add("delete-icon");
-  img.addEventListener("click", (e) => {
-    e.stopPropagation();
-    deleteQuiz(quiz.id);
-  });
-  li.appendChild(span);
-  li.appendChild(img);
-  return li;
-}
-
-function generateNewQuiz() {
-  window.location.href = "/pages/library.html";
-}
-
-async function deleteQuiz(id) {
-  const response = await apiFetch(`${GET_QUIZ_URL}${id}/`, {
-    method: "DELETE",
-  });
-  if (response && response.ok) {
-    renderQuizList();
-  }
-}
+let currentQuiz = null;
+let currentIndex = 0;
+let chosenAnswers = [];
 
 async function initQuiz() {
-  let btn = document.querySelector(".btn-go-back");
-  if (btn.classList.contains("d_none")) {
-    btn.classList.remove("d_none");
-  }
-  let targetHeadline = document.getElementById("quiz-title");
-  let target = document.getElementById("quiz-wrapper");
-  target.innerHTML = "";
+  initAppHeader();
+  initFooter();
 
-  if (CURRENTQUIZ === null || CURRENTQUIZ === undefined || CURRENTQUIZ === "") {
-    CURRENTQUIZ = await loadQuizzes(getQuizID());
-  }
+  const id = getQuizID();
+  document.getElementById("back-link").href = `/pages/quizoverview.html?id=${id}`;
+  currentQuiz = id ? await loadQuizzes(id) : null;
+  document.getElementById("quiz-loading").hidden = true;
 
-  targetHeadline.innerHTML = CURRENTQUIZ.title;
-
-  let questionTemplate = createQuestion(CURRENTQUIZ.questions);
-  target.appendChild(questionTemplate);
-
-  showOverview();
-}
-
-/**
- * Creates a question element with options
- * @param {Array} questionArr - Array of question objects
- * @returns {HTMLElement} - The question box element
- */
-function createQuestion(questions) {
-  const questionTitle = document.getElementById("quiz-question-title");
-  const questionAmount = document.getElementById("question-amount");
-  const currentQuestion = questions[currentQuestionNumber];
-
-  const questionBox = document.createElement("div");
-  questionBox.classList.add("question-box");
-
-  questionAmount.textContent = `${currentQuestionNumber + 1} / ${questions.length}`;
-  questionTitle.textContent = `${currentQuestionNumber + 1}. ${currentQuestion.question_title}`;
-
-  const questionsContainer = document.createElement("div");
-  questionsContainer.classList.add("questions-container");
-
-  const answerContainer = getOptions(currentQuestion.question_options);
-  questionsContainer.appendChild(answerContainer);
-
-  questionBox.appendChild(questionsContainer);
-  return questionBox;
-}
-
-/**
- * Creates answer options elements
- * @param {Array} options - Array of answer options
- * @returns {HTMLElement} - The answer container element
- */
-function getOptions(questions) {
-  const answerContainer = document.createElement("div");
-  answerContainer.classList.add("answer-container");
-
-  const labels = ["A", "B", "C", "D"];
-
-  questions.forEach((question, i) => {
-    const singleAnswer = document.createElement("div");
-    singleAnswer.classList.add("single-answer");
-
-    const labelElement = document.createElement("p");
-    labelElement.textContent = labels[i];
-
-    const answerElement = document.createElement("p");
-    answerElement.textContent = question;
-
-    singleAnswer.appendChild(labelElement);
-    singleAnswer.appendChild(answerElement);
-
-    answerContainer.appendChild(singleAnswer);
-  });
-
-  return answerContainer;
-}
-
-function evaluateResult() {
-  const { correct } = getCorrectAndWrongAnswers();
-  renderResults(correct, CURRENTQUIZ.questions.length);
-}
-
-function renderResults(answers, total) {
-  let percentage = ((answers / total) * 100).toFixed(1);
-  let answer = document.getElementById("answer");
-  const resultContainer = document.getElementById("result-container");
-  let targetHeadline = document.getElementById("quiz-title");
-
-  targetHeadline.innerHTML = "";
-
-  if (resultContainer.classList.contains("d_none")) {
-    resultContainer.classList.remove("d_none");
+  if (!currentQuiz || !currentQuiz.questions?.length) {
+    document.getElementById("quiz-error").hidden = false;
+    return;
   }
 
-  answer.innerHTML = checkAnswer(percentage);
-
-  document.getElementById("score").innerHTML =
-    ` &nbsp&nbsp${answers}/${total}&nbsp&nbsp`;
-  document.getElementById("percent").innerHTML = `(${percentage})&nbsp%`;
+  document.title = `${currentQuiz.title} · Quizly`;
+  document.getElementById("quiz-title").textContent = currentQuiz.title;
+  document.getElementById("prev-button").addEventListener("click", previousQuestion);
+  document.getElementById("next-button").addEventListener("click", nextQuestion);
+  document.addEventListener("keydown", handleShortcut);
+  restartQuiz();
 }
 
-function checkAnswer(percentage) {
-  if (percentage >= 50) {
-    return "Awesome job - you crushed it";
+function restartQuiz() {
+  currentIndex = 0;
+  chosenAnswers = [];
+  document.getElementById("quiz-result").hidden = true;
+  document.getElementById("quiz-play").hidden = false;
+  renderQuestion(false);
+}
+
+/* ---------- Frage ---------- */
+
+function renderQuestion(moveFocus = true) {
+  const questions = currentQuiz.questions;
+  const question = questions[currentIndex];
+  const total = questions.length;
+
+  document.getElementById("question-amount").textContent = `Frage ${currentIndex + 1} von ${total}`;
+  const bar = document.getElementById("quiz-progress-bar");
+  bar.setAttribute("aria-valuemax", total);
+  bar.setAttribute("aria-valuenow", currentIndex + 1);
+  bar.style.setProperty("--progress", `${((currentIndex + 1) / total) * 100}%`);
+
+  document.getElementById("question-title").textContent = question.question_title;
+  document.getElementById("answers").innerHTML = question.question_options
+    .map((option, i) => getAnswerTemplate(option, i))
+    .join("");
+  document
+    .querySelectorAll("#answers input")
+    .forEach((input) => input.addEventListener("change", updateNavigation));
+
+  document.getElementById("prev-button").hidden = currentIndex === 0;
+  document.getElementById("next-button").textContent =
+    currentIndex === total - 1 ? "Auswerten" : "Weiter";
+  updateNavigation();
+
+  if (moveFocus) document.getElementById("question-title").focus();
+}
+
+function getAnswerTemplate(option, index) {
+  const checked = chosenAnswers[currentIndex] === option ? "checked" : "";
+  return `
+    <label class="answer">
+      <input type="radio" name="answer" value="${escapeHtml(option)}" ${checked} />
+      <span class="answer__key" aria-hidden="true">${ANSWER_KEYS[index]}</span>
+      <span class="answer__text">${escapeHtml(option)}</span>
+    </label>`;
+}
+
+function getSelectedAnswer() {
+  return document.querySelector("#answers input:checked")?.value ?? null;
+}
+
+function updateNavigation() {
+  document.getElementById("next-button").disabled = getSelectedAnswer() === null;
+}
+
+function nextQuestion() {
+  const answer = getSelectedAnswer();
+  if (answer === null) return;
+  chosenAnswers[currentIndex] = answer;
+
+  if (currentIndex < currentQuiz.questions.length - 1) {
+    currentIndex++;
+    renderQuestion();
   } else {
-    return "Not your best score. Give it another go.";
+    showResult();
   }
 }
 
-function redoQuiz() {
-  answerList = [];
-  currentQuestionNumber = 0;
-  initQuiz();
-  document.getElementById("quiz-overlay").classList.remove("d_none");
-  document.getElementById("result-container").classList.add("d_none");
-  container.classList.add("d_none");
-  resultContainer.classList.add("d_none");
-  buttonContainer.classList.add("d_none");
-  sideResultContainer.classList.add("d_none");
+function previousQuestion() {
+  const answer = getSelectedAnswer();
+  if (answer !== null) chosenAnswers[currentIndex] = answer;
+  if (currentIndex === 0) return;
+  currentIndex--;
+  renderQuestion();
 }
 
-async function backToOverview() {
-  let quizId = null;
+/** 1 to 4 or A to D pick an answer, Enter moves on. */
+function handleShortcut(event) {
+  if (document.getElementById("quiz-play").hidden) return;
+  if (event.altKey || event.ctrlKey || event.metaKey) return;
 
-  if (window.location.href.includes("isOverview=true")) {
-    quizId = getQuizID();
+  const key = event.key.toUpperCase();
+  const index = ["1", "2", "3", "4"].includes(key) ? Number(key) - 1 : ANSWER_KEYS.indexOf(key);
+  const inputs = document.querySelectorAll("#answers input");
+
+  if (index >= 0 && index < inputs.length) {
+    event.preventDefault();
+    inputs[index].checked = true;
+    inputs[index].focus();
+    updateNavigation();
+    return;
   }
 
-  try {
-    const response = await apiFetch(`${GET_QUIZ_URL}${quizId}/`, {
-      method: "GET",
-    });
-
-    if (response && response.ok) {
-      window.location.href = `/pages/quizoverview.html?id=${quizId}`;
-    } else {
-      window.location.href = "/pages/library.html";
-    }
-  } catch (error) {
-    console.error("Fehler beim Prüfen des Quiz:", error);
-    window.location.href = "/pages/library.html";
+  if (event.key === "Enter" && event.target.closest?.("#answers, .question__title")) {
+    event.preventDefault();
+    nextQuestion();
   }
 }
 
-function showAnswers(bool) {
-  let btn = document.querySelector(".btn-go-back");
-  btn.classList.add("d_none");
-  container.classList.remove("d_none");
-  resultContainer.classList.add("d_none");
-  buttonContainer.classList.remove("d_none");
-  sideResultContainer.classList.remove("d_none");
+/* ---------- Ergebnis ---------- */
 
-  const { correct, wrong } = getCorrectAndWrongAnswers();
+function showResult() {
+  const questions = currentQuiz.questions;
+  const correct = questions.filter((q, i) => chosenAnswers[i] === q.answer).length;
+  const total = questions.length;
+  const percent = Math.round((correct / total) * 100);
 
-  document.getElementById("correct-answers").innerHTML =
-    `<img src="/assets/icons/wright.png" alt="wright answer checkmark"> Correct answers: ${correct}`;
-  document.getElementById("wrong-answers").innerHTML =
-    `<img src="/assets/icons/wrong.png" alt="wrong answer checkmark"> Wrong answers: ${wrong}`;
+  saveResult(currentQuiz.id, correct, total);
 
-  generateAnswerList(bool);
+  document.getElementById("quiz-play").hidden = true;
+  document.getElementById("quiz-result").hidden = false;
+
+  const ring = document.getElementById("score-ring");
+  ring.style.setProperty("--score", percent);
+  ring.classList.toggle("is-low", percent < 50);
+  document.getElementById("score-percent").textContent = `${percent} %`;
+  document.getElementById("result-title").textContent = getResultHeadline(percent);
+  document.getElementById("result-text").textContent =
+    `Du hast ${correct} von ${total} Fragen richtig beantwortet.`;
+  document.getElementById("answer-review").innerHTML = questions
+    .map((q, i) => getReviewTemplate(q, i))
+    .join("");
+
+  document.getElementById("result-title").focus();
 }
 
-/**
- * Generates a list of answers with correct/incorrect indicators
- * @param {boolean} showCorrect - Whether to show correct answers for incorrect responses
- */
-/**
- * Generates a list of answers with correct/incorrect indicators
- * @param {boolean} showCorrect - Whether to show correct answers for incorrect responses
- */
-function generateAnswerList(showCorrect = false) {
-  const container = document.getElementById("answers-list");
-  const questions = CURRENTQUIZ.questions;
-
-  container.innerHTML = "";
-
-  questions.forEach((q, i) => {
-    const listItem = createAnswerListItem(q, i, showCorrect);
-    container.appendChild(listItem);
-  });
-
-  container.scrollTop = 0;
+function getResultHeadline(percent) {
+  if (percent >= 80) return "Stark, fast alles gewusst!";
+  if (percent >= 50) return "Gut gemacht!";
+  return "Da geht noch mehr.";
 }
 
-/**
- * Creates a single answer list item
- * @param {Object} question - The question object
- * @param {number} index - Question index
- * @param {boolean} showCorrect - Whether to show correct answers
- * @returns {HTMLElement} - The list item element
- */
-function createAnswerListItem(question, index, showCorrect) {
-  const listItem = document.createElement("li");
-  const user = answerList[index];
-  const correct = question.answer;
-  const isCorrect = user === correct;
-  const questionText = createQuestionText(question["question_title"], index);
-  listItem.appendChild(questionText);
+function getReviewTemplate(question, index) {
+  const chosen = chosenAnswers[index];
+  const isCorrect = chosen === question.answer;
+  const status = isCorrect ? "Richtig" : "Falsch";
+  const correctLine = isCorrect
+    ? ""
+    : `<p class="review__correct">${getStatusIcon(true)}Richtig wäre: ${escapeHtml(question.answer)}</p>`;
 
-  const answerLine = createAnswerLine(user, isCorrect);
-  listItem.appendChild(answerLine);
-
-  if (showCorrect && !isCorrect) {
-    const correctLine = createCorrectAnswerLine(correct);
-    listItem.appendChild(correctLine);
-  }
-
-  return listItem;
+  return `
+    <li class="review__item ${isCorrect ? "is-correct" : "is-wrong"}">
+      <p class="review__question">${escapeHtml(question.question_title)}</p>
+      <p class="review__answer">
+        ${getStatusIcon(isCorrect)}<span class="sr-only">${status}. </span>Deine Antwort: ${escapeHtml(chosen)}
+      </p>
+      ${correctLine}
+    </li>`;
 }
 
-/**
- * Creates the question text element
- * @param {string} questionText - The question text
- * @param {number} index - Question index
- * @returns {HTMLElement} - The question text element
- */
-function createQuestionText(questionText, index) {
-  const questionElement = document.createElement("p");
-  questionElement.className = "question-text";
-  questionElement.textContent = `${index + 1}. ${questionText}`;
-  return questionElement;
-}
-
-/**
- * Creates an answer line with status indicator
- * @param {string} answer - The answer text
- * @param {boolean} isCorrect - Whether the answer is correct
- * @returns {HTMLElement} - The answer line element
- */
-function createAnswerLine(answer, isCorrect) {
-  const answerLine = document.createElement("div");
-  answerLine.className = "answer-line";
-
-  const statusImg = createStatusImage(isCorrect);
-  const answerSpan = createAnswerSpan(answer, isCorrect);
-
-  answerLine.appendChild(statusImg);
-  answerLine.appendChild(answerSpan);
-
-  return answerLine;
-}
-
-/**
- * Creates the correct answer line
- * @param {string} correctAnswer - The correct answer text
- * @returns {HTMLElement} - The correct answer line element
- */
-function createCorrectAnswerLine(correctAnswer) {
-  const correctLine = document.createElement("div");
-  correctLine.className = "answer-line correct-answer-line";
-
-  const correctImg = createStatusImage(true);
-  const correctSpan = document.createElement("span");
-  correctSpan.textContent = correctAnswer;
-
-  correctLine.appendChild(correctImg);
-  correctLine.appendChild(correctSpan);
-
-  return correctLine;
-}
-
-/**
- * Creates a status image element
- * @param {boolean} isCorrect - Whether to show correct or wrong image
- * @returns {HTMLElement} - The image element
- */
-function createStatusImage(isCorrect) {
-  const img = document.createElement("img");
-  img.src = isCorrect ? "/assets/icons/wright.png" : "/assets/icons/wrong.png";
-  img.alt = isCorrect ? "correct checkmark" : "wrong checkmark";
-  return img;
-}
-
-/**
- * Creates an answer span with appropriate styling
- * @param {string} answer - The answer text
- * @param {boolean} isCorrect - Whether the answer is correct
- * @returns {HTMLElement} - The span element
- */
-function createAnswerSpan(answer, isCorrect) {
-  const span = document.createElement("span");
-  span.style.color = isCorrect ? "var(--text-color-whiteblue)" : "red";
-  span.textContent = answer;
-  return span;
-}
-
-/**
- * Calculates the number of correct and wrong answers from the user's responses
- * @returns {Object} - Object containing correct and wrong answer counts
- * @returns {number} returns.correct - Number of correct answers
- * @returns {number} returns.wrong - Number of wrong answers
- */
-function getCorrectAndWrongAnswers() {
-  let correct = 0;
-  let wrong = 0;
-  const questions = CURRENTQUIZ.questions;
-
-  answerList.forEach((userAnswer, i) => {
-    const correctAnswer = questions[i].answer;
-    if (userAnswer === correctAnswer) {
-      correct++;
-    } else {
-      wrong++;
-    }
-  });
-
-  return { correct, wrong };
+function getStatusIcon(isCorrect) {
+  const path = isCorrect ? '<path d="M20 6 9 17l-5-5" />' : '<path d="M18 6 6 18" /><path d="m6 6 12 12" />';
+  return `<svg class="review__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`;
 }
