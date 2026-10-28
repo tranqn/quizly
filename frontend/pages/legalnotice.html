@@ -1,59 +1,50 @@
 <!doctype html>
-<html lang="en">
+<html lang="de">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Quizly - Legal Notice</title>
-    <link rel="stylesheet" href="../styles.css" />
+    <title>Impressum · Quizly</title>
+    <meta name="description" content="Impressum von Quizly, einem privaten Portfolio-Projekt." />
+    <link rel="stylesheet" href="../shared/css/fonts.css" />
     <link rel="stylesheet" href="../shared/css/variables.css" />
     <link rel="stylesheet" href="../shared/css/standart.css" />
-    <link rel="stylesheet" href="../shared/css/fonts.css" />
+    <link rel="stylesheet" href="../shared/css/app.css" />
     <link rel="stylesheet" href="../shared/css/policy.css" />
-    <link
-      rel="icon"
-      href="../assets/icons/robot_default.png"
-      type="image/x-icon"
-    />
-    <script src="../shared/js/header.js"></script>
-    <script src="../shared/js/template.js"></script>
-    <script src="../shared/js/helper.js"></script>
+    <link rel="icon" href="../assets/icons/robot_default.png" type="image/png" />
+    <script src="../shared/js/template.js" defer></script>
   </head>
-  <body onload="initHeader()" class="pos_rel">
-    <section>
-      <div class="background-wave">
-        <img src="/assets/icons/wave.png" alt="a background wave image" />
-      </div>
-    </section>
-    <header>
-      <div id="header" class="z_5"></div>
+  <body class="app-page" onload="initFooter()">
+    <a class="skip-link" href="#main">Zum Inhalt springen</a>
+    <header class="app-header">
+      <a href="/index.html" class="app-header__logo">
+        <img src="/assets/icons/logoheader.png" alt="Quizly Startseite" width="150" height="43" />
+      </a>
     </header>
 
-    <main class="main-privacy">
-      <div class="p48">
-        <h2>Legal Notice (Angaben gemäß § 5 DDG)</h2>
-        <p>
-          Quoc Nam Tran<br />
-          Niedermarkt 35<br />
-          04736 Waldheim, Germany<br />
-          Email: <a href="mailto:info@quocnamtran.com">info@quocnamtran.com</a>
-        </p>
-        <h2>About this project</h2>
-        <p>
-          Quizly is a private portfolio/demo project (not a commercial
-          offering), built as part of a fullstack developer training program.
-        </p>
-        <h2>Disclaimer</h2>
-        <p>
-          Despite careful content control, we assume no liability for the
-          content of external links. The operators of the linked pages are
-          solely responsible for their content.
-        </p>
-      </div>
+    <main id="main" class="app-main legal">
+      <h1>Impressum</h1>
+      <h2>Angaben gemäß § 5 DDG</h2>
+      <p>
+        Quóc Nam Tràn<br />
+        Niedermarkt 35<br />
+        04736 Waldheim<br />
+        Deutschland<br />
+        E-Mail: <a href="mailto:info@quocnamtran.com">info@quocnamtran.com</a>
+      </p>
+
+      <h2>Über dieses Projekt</h2>
+      <p>
+        Quizly ist ein privates Portfolio- und Demo-Projekt und kein kommerzielles Angebot. Es ist
+        im Rahmen einer Weiterbildung zum Fullstack-Entwickler entstanden.
+      </p>
+
+      <h2>Haftung für Links</h2>
+      <p>
+        Trotz sorgfältiger Kontrolle übernehme ich keine Haftung für die Inhalte externer Links.
+        Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.
+      </p>
     </main>
 
-    <footer class="footer z-6 pos_abs">
-      <a href="./legalnotice.html" class="cu_po">Legal notice</a>
-      <a href="./privacy.html" class="cu_po">Privacy policy</a>
-    </footer>
+    <footer id="footer" class="site-footer"></footer>
   </body>
 </html>
