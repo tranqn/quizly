@@ -9,13 +9,42 @@ This repository contains two parts:
 
 ```
 quizly/
-├── frontend/   # provided static frontend (HTML/CSS/JS)
-└── backend/    # Django REST API (this is the part built here)
+├── frontend/   # static frontend (HTML/CSS/JS), redesigned from the course template
+└── backend/    # Django REST API
 ```
 
-The frontend is the provided project
-[`Developer-Akademie-Backendkurs/project.Quizly`](https://github.com/Developer-Akademie-Backendkurs/project.Quizly)
-and talks to the backend at `http://127.0.0.1:8000/api/`.
+### Frontend: redesigned on top of the course frontend
+
+The starting point was the provided course frontend
+[`Developer-Akademie-Backendkurs/project.Quizly`](https://github.com/Developer-Akademie-Backendkurs/project.Quizly).
+It has since been rebuilt page by page, following patterns from established quiz
+apps (Quizizz, Quizlet, QuestionWell) while keeping the original look:
+
+- start page with the link field above the fold instead of a 6 s intro, link
+  preview, and a guest entry; a link entered while logged out becomes a quiz
+  right after login
+- library with quiz cards (thumbnail, question count, date, last result),
+  keyboard menu, delete confirmation, loading, empty and error states
+- quiz solvable by keyboard alone (radio group, 1 to 4 or A to D, Enter),
+  progress bar, result ring and a full answer review
+- German UI, shared design tokens, visible focus, labels on every field
+- no build step: still plain HTML, CSS and JavaScript served by Django
+
+The API contract of the course is unchanged; the only addition is the guest
+login below. Before and after measurements (Lighthouse, axe, screenshots) live
+in [`docs/ui-angleichung/`](docs/ui-angleichung/). The last result per quiz is
+kept in `localStorage`, so it is per device.
+
+### Guest access
+
+`POST /api/guest-login/` logs into a shared, **read-only** demo account: it can
+list, open and solve quizzes, while creating, renaming and deleting answer
+`403`. `python manage.py seed_demo` creates the account (no usable password) and
+loads three German demo quizzes from `quiz_app/fixtures/demo_quizzes.json`; the
+container entrypoint runs it on every start and it is idempotent (`--reset`
+reloads the quizzes). Registration rejects the guest username, and the guest
+login refuses an account that has a password. Guest logins are throttled to 30
+per hour and client IP.
 
 ## Requirements
 
@@ -60,6 +89,9 @@ is generated. No other configuration is needed for local use.
 | `ALLOWED_HOSTS` | Comma-separated allowed hosts (production) |
 | `GEMINI_MODEL` | Gemini model id (default `gemini-2.5-flash`) |
 | `WHISPER_MODEL` | Whisper model size (`tiny`…`large`, default `base`) |
+| `GUEST_USERNAME` | Name of the read-only demo account (default `gast`) |
+| `NUM_PROXIES` | Reverse proxies in front of Django, used to find the client IP for throttling (default `1`) |
+| `CACHE_DIR` | File cache shared by the gunicorn workers for throttle counters (default `/tmp/quizly-cache`) |
 
 The `YTDLP_*` anti-bot knobs are covered under *YouTube extraction* below.
 
@@ -128,6 +160,7 @@ Base URL: `http://127.0.0.1:8000/api/`
 | ------ | ----------------- | ------------------------------------------------------ | ------ |
 | POST   | `/register/`      | `username`, `email`, `password`, `confirmed_password`  | `201` user created |
 | POST   | `/login/`         | `username`, `password`                                 | `200`, sets `access_token` + `refresh_token` cookies |
+| POST   | `/guest-login/`   | none                                                   | `200`, same cookies for the read-only demo account; `503` if not seeded |
 | POST   | `/token/refresh/` | – (reads `refresh_token` cookie)                       | `200`, sets a new `access_token` cookie |
 | POST   | `/logout/`        | – (auth required)                                      | `200`, clears cookies and blacklists the refresh token |
 
@@ -141,7 +174,7 @@ Base URL: `http://127.0.0.1:8000/api/`
 | PATCH  | `/quizzes/{id}/`  | `title`, `description`   | `200` updated quiz |
 | DELETE | `/quizzes/{id}/`  | –                        | `204` deleted |
 
-Users can only access their own quizzes.
+Users can only access their own quizzes. The guest account gets `403` on `POST`, `PATCH` and `DELETE`.
 
 ## Admin panel
 
