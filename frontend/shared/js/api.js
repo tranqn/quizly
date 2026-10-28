@@ -1,25 +1,42 @@
+/**
+ * Generates a quiz from a YouTube URL. Returns { data } on success or
+ * { error } with a message the UI can show as is.
+ */
 async function createQuiz(url) {
-  document.querySelector(".overlay").classList.remove("d_none");
-  url = url.trim();
   try {
-    let response = await apiFetch(CREATE_QUIZ_URL, {
+    const response = await apiFetch(CREATE_QUIZ_URL, {
       method: "POST",
-      body: JSON.stringify({ url: url }),
+      body: JSON.stringify({ url: url.trim() }),
     });
-
-    if (!response || !response.ok) {
-      showToastMessage(true, ["Error generating quiz"]);
-      document.querySelector(".overlay").classList.add("d_none");
-      return null;
-    }
-
-    const data = await response.json();
-    document.querySelector(".overlay").classList.add("d_none");
-    return data;
+    if (!response) return { error: "Bitte melde dich erneut an." };
+    if (response.ok) return { data: await response.json() };
+    return { error: await getCreateErrorMessage(response) };
   } catch (error) {
-    document.querySelector(".overlay").classList.add("d_none");
-    showToastMessage(true, ["Error while sending URL"]);
-    return null;
+    return { error: "Keine Verbindung zum Server. Bitte versuche es gleich noch einmal." };
+  }
+}
+
+async function getCreateErrorMessage(response) {
+  if (response.status === 400) {
+    return "Das ist kein gültiger Link. Kopiere die Adresse direkt aus YouTube.";
+  }
+  if (response.status === 403) {
+    return "Im Gastmodus kannst du keine eigenen Quizze erstellen.";
+  }
+  const body = await parseJsonSafe(response);
+  // Both pipeline errors are 500; only the detail text tells them apart.
+  if ((body.detail || "").includes("video audio")) {
+    return "Das Video konnte nicht geladen werden. Ist es öffentlich und nicht altersbeschränkt?";
+  }
+  return "Die KI ist gerade ausgelastet. Bitte versuche es in einer Minute noch einmal.";
+}
+
+async function removeQuiz(id) {
+  try {
+    const response = await apiFetch(`${GET_QUIZ_URL}${id}/`, { method: "DELETE" });
+    return Boolean(response && response.ok);
+  } catch (error) {
+    return false;
   }
 }
 
@@ -34,7 +51,7 @@ async function loadQuizzes(id) {
     if (!response || !response.ok) return null;
     return await response.json();
   } catch (error) {
-    showToastMessage(true, ["Error while sending URL"]);
+    showToastMessage(true, ["Das Quiz konnte nicht geladen werden."]);
     return null;
   }
 }
@@ -57,7 +74,7 @@ async function updateQuiz(id, quiz) {
     if (!response || !response.ok) return null;
     return await response.json();
   } catch (error) {
-    showToastMessage(true, ["Error while updating Quiz"]);
+    showToastMessage(true, ["Das Quiz konnte nicht gespeichert werden."]);
     return null;
   }
 }
