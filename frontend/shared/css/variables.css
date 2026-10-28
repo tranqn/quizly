@@ -40,4 +40,34 @@
   --font-size-40: 40px;
   --font-size-18: 18px;
   --font-size-48: 48px;
+
+  /* Tokens der UI-Angleichung: neue Komponenten nutzen nur noch diese. */
+  --color-bg: #070923;
+  --color-primary: var(--text-color-green);
+  --color-on-primary: #070923;
+  --color-text: var(--text-color-whiteblue);
+  --color-text-accent: var(--text-color-bluelight);
+  --color-surface: rgba(63, 255, 104, 0.12);
+  --color-surface-strong: rgba(63, 255, 104, 0.2);
+  --color-border: rgba(63, 255, 104, 0.45);
+  --color-danger: #ff8a8a;
+
+  --font-heading: "K2D", sans-serif;
+  --font-body: "Kantumruy Pro", sans-serif;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 72px;
+
+  --radius-control: 16px;
+  --radius-card: 24px;
+
+  --focus-ring-color: var(--text-color-bluelight);
+  --motion-fast: 150ms;
+  --motion-base: 300ms;
 }

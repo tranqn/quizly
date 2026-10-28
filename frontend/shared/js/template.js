@@ -1,71 +1,42 @@
-function getSpeechTemplate() {
+/** Kopf für alle eingeloggten Seiten. */
+function getAppHeaderTemplate() {
+  const guestBadge = isGuest()
+    ? `<span class="app-header__badge">Gastmodus</span>`
+    : "";
   return `
-        Hey welcome to Quizly! Unlock the Ai power and dive in to the quiz!
-    `;
+    <a href="/pages/library.html" class="app-header__logo">
+      <img src="/assets/icons/logoheader.png" alt="Quizly, zur Bibliothek" width="150" height="43" />
+    </a>
+    <div class="app-header__actions">
+      ${guestBadge}
+      <button type="button" class="button button--text app-header__logout" onclick="logOut()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" x2="9" y1="12" y2="12" />
+        </svg>
+        Abmelden
+      </button>
+    </div>
+  `;
 }
 
-function getHeaderTemplate() {
-  if (window.location.pathname.endsWith("quiz.html")) {
-    return `
-    <section class="w_full header-library pos_abs header z_5">
-        <img src="/assets/icons/logoheader.png" alt="logo of robot" class="p20 ">
-        <div class="header-icon"  onclick="logOut()">
-            <img src="/assets/icons/logout.png" alt="logout symbol" class="p20 cu_po">
-        </div>
-        <button
-              id="generate-new"
-              class="btn cu_po d_flex_cc_ac border_1_solid z_5"
-              onclick="generateNewQuiz()"
-            >Generate new quiz
-            </button>
-    </section>
+function initAppHeader() {
+  const header = document.getElementById("app-header");
+  if (header) header.innerHTML = getAppHeaderTemplate();
+}
+
+function getFooterTemplate() {
+  const year = new Date().getFullYear();
+  return `
+    <a href="/pages/legalnotice.html">Impressum</a>
+    <a href="/pages/privacy.html">Datenschutz</a>
+    <span>© ${year} Portfolio-Projekt von Quóc Nam Tràn</span>
+    <a href="https://github.com/tranqn/quizly" rel="noopener">Quellcode auf GitHub</a>
   `;
-  }
-  if (window.location.pathname.endsWith("quizoverview.html")) {
-    return `
-      <section class="w_full d_flex_sb_ac pos_abs header z_5">
-          <img src="/assets/icons/logoheader.png" onclick="goToLibrary()" alt="logo of robot" class="p20 cu_po">
-          <div class="header-icon" onclick="logOut()">
-              <img src="/assets/icons/logout.png" alt="logout symbol" class="p20 cu_po">
-          </div>
-      </section>
-    `;
-  }
-  if (
-    window.location.pathname.endsWith("privacy.html") ||
-    window.location.pathname.endsWith("legalnotice.html")
-  ) {
-    return `
-      <section class="w_full d_flex_sb_ac pos_abs header z_5">
-          <img src="/assets/icons/logoheader.png" onclick="goToLogin()" alt="logo of robot" class="p20 cu_po">
-          <div class="back-btn">
-            <svg class="p20 cu_po  " onclick="goBack()" xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none">
-                <path d="M15 18l-6-6 6-6" stroke="#3FFF68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-      </section>
-    `;
-  }
-  if (
-    window.location.pathname.endsWith("login.html") ||
-    window.location.pathname.endsWith("registration.html")
-  ) {
-    return `
-      <section class="w_full d_flex_sb_ac pos_abs header z_5">
-          <img src="/assets/icons/logoheader.png" alt="logo of robot" class="p20 no-cu-po">
-          <div class="header-icon no-cu-po">
-              <img src="/assets/icons/logout.png" alt="logout symbol" class="p20 no-cu-po">
-          </div>
-      </section>
-    `;
-  } else {
-    return `
-      <section class="w_full d_flex_sb_ac pos_abs header z_5">
-          <img src="/assets/icons/logoheader.png" alt="logo of robot" class="p20">
-          <div class="header-icon" onclick="logOut()">
-              <img src="/assets/icons/logout.png" alt="logout symbol" class="p20 cu_po">
-          </div>
-      </section>
-    `;
-  }
+}
+
+function initFooter() {
+  const footer = document.getElementById("footer");
+  if (footer) footer.innerHTML = getFooterTemplate();
 }

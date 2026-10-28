@@ -26,23 +26,25 @@ function showToastMessage(error = true, msg = []) {
   toast.className = "toast_msg d_flex_cc_ac";
   toast.innerHTML = getToastHTML(msg, error);
   toast.setAttribute("error", error);
+  toast.setAttribute("role", error ? "alert" : "status");
   document.body.appendChild(toast);
 
   setTimeout(() => {
     toast.remove();
-  }, 3000);
+  }, 4000);
 }
 
 function showToastHint(msg = []) {
   const toast = document.createElement("div");
   toast.className = "toast_msg d_flex_cc_ac";
   toast.innerHTML = getToastHintHTML(msg);
+  toast.setAttribute("role", "status");
   document.body.appendChild(toast);
   toast.setAttribute("hint", true);
 
   setTimeout(() => {
     toast.remove();
-  }, 2500);
+  }, 4000);
 }
 
 function getToastHintHTML(msg) {
@@ -75,12 +77,27 @@ function getToastHTML(msg, error) {
   return `<div class="toast_msg_left d_flex_cc_ac">
             </div>
             <div class="toast_msg_right">
-                <h3 error="false">Success</h3>
-                <h3 error="true">Error</h3>
+                <h3 error="false">Erledigt</h3>
+                <h3 error="true">Fehler</h3>
                 <ul class="w_full">
                     ${msglist}
                 </ul>
             </div>`;
+}
+
+/** Escapes text before it goes into an HTML template string. */
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text ?? "";
+  return div.innerHTML.replaceAll('"', "&quot;");
+}
+
+function formatDate(isoString) {
+  return new Intl.DateTimeFormat("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date(isoString));
 }
 
 function getQuizID() {

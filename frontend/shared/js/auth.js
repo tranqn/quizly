@@ -29,7 +29,7 @@ if (checkboxTerms) {
       errorDiv.textContent = "";
       errorDiv.classList.remove("visible");
     } else {
-      errorDiv.textContent = "Bitte akzeptiere die Privacy Policy.";
+      errorDiv.textContent = "Bitte akzeptiere die Datenschutzerklärung.";
       errorDiv.classList.add("visible");
     }
   });
@@ -71,7 +71,7 @@ async function loginUser(event) {
   const allValid = validateAllFields(form);
 
   if (!allValid) {
-    showToastMessage(true, "Please fill in all fields");
+    showToastMessage(true, "Bitte fülle alle Felder aus.");
     return;
   }
   const body = getFormData(form, "login");
@@ -87,18 +87,41 @@ async function loginUser(event) {
     });
 
     if (!response.ok) {
-      let responseData = await parseJsonSafe(response);
-      const reason = responseData.detail || `server error (${response.status})`;
-      showToastMessage(true, `Login failed: ${reason}`);
+      const message =
+        response.status === 401
+          ? "Benutzername oder Passwort stimmen nicht."
+          : `Anmeldung fehlgeschlagen (Fehler ${response.status}).`;
+      showToastMessage(true, message);
       return;
     }
 
-    showToastMessage(false, "Login successful");
-    setTimeout(() => {
-      window.location.href = "/pages/library.html";
-    }, 2000);
+    setGuest(false);
+    window.location.href = "/pages/library.html";
   } catch (error) {
-    showToastMessage(true, `Network error: ${error.message}`);
+    showToastMessage(true, "Keine Verbindung zum Server. Bitte versuche es gleich noch einmal.");
+  }
+}
+
+async function loginAsGuest() {
+  try {
+    const response = await fetch(`${API_BASE_URL}${GUEST_LOGIN_URL}`, {
+      method: "POST",
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      const message =
+        response.status === 429
+          ? "Zu viele Gast-Anmeldungen. Bitte versuche es später noch einmal."
+          : "Der Gastzugang ist gerade nicht verfügbar.";
+      showToastMessage(true, message);
+      return;
+    }
+
+    setGuest(true);
+    window.location.href = "/pages/library.html";
+  } catch (error) {
+    showToastMessage(true, "Keine Verbindung zum Server. Bitte versuche es gleich noch einmal.");
   }
 }
 
@@ -108,7 +131,7 @@ async function signUpUser(event) {
   const allValid = validateAllFields(form);
 
   if (!allValid) {
-    showToastMessage(true, "Please fill in all fields");
+    showToastMessage(true, "Bitte fülle alle Felder aus.");
     return;
   }
   const body = getFormData(form, "signup");
@@ -131,21 +154,19 @@ async function signUpUser(event) {
         data.email ||
         data.password ||
         data.confirmed_password ||
-        `server error (${response.status})`;
-      showToastMessage(true, `Register failed: ${reason}`);
+        `Fehler ${response.status}`;
+      showToastMessage(true, `Registrierung fehlgeschlagen: ${reason}`);
       return;
     }
 
-    showToastMessage(false, "Register successful");
-    setTimeout(() => {
-      window.location.href = "/pages/login.html";
-    }, 2000);
+    window.location.href = "/pages/login.html?registriert=1";
   } catch (error) {
-    showToastMessage(true, `Network error: ${error.message}`);
+    showToastMessage(true, "Keine Verbindung zum Server. Bitte versuche es gleich noch einmal.");
   }
 }
 
 async function logOut(notoken) {
+  setGuest(false);
   try {
     await fetch(`${API_BASE_URL}${LOGOUT_URL}`, {
       method: "POST",
@@ -158,16 +179,10 @@ async function logOut(notoken) {
     if (notoken) {
       window.location.href = "/pages/login.html";
     } else {
-      showToastMessage(false, "Logout successfully!");
-      setTimeout(() => {
-        window.location.href = "/pages/login.html";
-      }, 2000);
+      window.location.href = "/index.html";
     }
   } catch (error) {
-    showToastMessage(true, ["Logout error"]);
-    setTimeout(() => {
-      window.location.href = "/pages/login.html";
-    }, 2000);
+    window.location.href = "/index.html";
   }
 }
 
@@ -220,7 +235,7 @@ function validateFormElements(input) {
         break;
       }
       if (!passwordRegex.test(value)) {
-        showError(input, "min. 6 Zeichen, 1 x A-Z, 1 x a-z sowie 1 x 0-9");
+        showError(input, "Mindestens 6 Zeichen, davon ein Groß- und ein Kleinbuchstabe und eine Ziffer.");
         return false;
       }
       break;
@@ -238,7 +253,7 @@ function validateFormElements(input) {
     case "terms":
       const errorDiv = document.getElementById("checkbox-error");
       if (!value) {
-        errorDiv.textContent = "Bitte akzeptiere die Privacy Policy.";
+        errorDiv.textContent = "Bitte akzeptiere die Datenschutzerklärung.";
         errorDiv.classList.add("visible");
         return false;
       } else {
@@ -258,6 +273,7 @@ function showError(input, message) {
     errorDiv.textContent = message;
     errorDiv.classList.add("visible");
   }
+  input.setAttribute("aria-invalid", "true");
 }
 
 function clearError(input) {
@@ -266,17 +282,20 @@ function clearError(input) {
     errorDiv.textContent = "";
     errorDiv.classList.remove("visible");
   }
+  input.removeAttribute("aria-invalid");
 }
 
 function togglePasswordVisibility(input, icon) {
   if (input.type === "password") {
     input.type = "text";
-    icon.src = "/assets/icons/visibility.svg";
-    icon.alt = "picture of an open eye";
+    icon.querySelector("img").src = "/assets/icons/visibility.svg";
+    icon.setAttribute("aria-label", "Passwort verbergen");
+    icon.setAttribute("aria-pressed", "true");
   } else {
     input.type = "password";
-    icon.src = "/assets/icons/visibility_off.svg";
-    icon.alt = "picture of a closed eye";
+    icon.querySelector("img").src = "/assets/icons/visibility_off.svg";
+    icon.setAttribute("aria-label", "Passwort anzeigen");
+    icon.setAttribute("aria-pressed", "false");
   }
 }
 
@@ -307,7 +326,9 @@ async function apiFetch(endpoint, options = {}) {
 
   let response = await doRequest();
 
-  if (response.status === 401 || response.status === 403) {
+  // Only 401 means "not logged in". A 403 is a permission answer (e.g. the
+  // read-only guest account) and goes back to the caller unchanged.
+  if (response.status === 401) {
     const refreshed = await refreshToken();
     if (!refreshed) {
       window.location.href = "/pages/login.html";
@@ -316,7 +337,7 @@ async function apiFetch(endpoint, options = {}) {
 
     response = await doRequest();
 
-    if (response.status === 401 || response.status === 403) {
+    if (response.status === 401) {
       window.location.href = "/pages/login.html";
       return null;
     }
