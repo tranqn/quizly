@@ -1,85 +1,90 @@
 <!doctype html>
-<html lang="en">
+<html lang="de">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Quizly - Quiz</title>
+    <title>Quiz · Quizly</title>
+    <meta name="description" content="Übersicht eines Quizly-Quiz: Video ansehen, Quiz starten, Titel und Beschreibung bearbeiten." />
+    <link rel="stylesheet" href="/shared/css/fonts.css" />
     <link rel="stylesheet" href="/shared/css/variables.css" />
     <link rel="stylesheet" href="/shared/css/standart.css" />
+    <link rel="stylesheet" href="/shared/css/toastmsg.css" media="print" onload="this.media='all'" />
+    <link rel="stylesheet" href="/shared/css/app.css" />
     <link rel="stylesheet" href="/shared/css/quizoverview.css" />
-    <link rel="stylesheet" href="../shared/css/toastmsg.css" />
-
-    <script src="/shared/js/helper.js"></script>
-    <script src="../shared/js/config.js"></script>
-    <script src="../shared/js/auth.js" defer></script>
+    <link rel="icon" href="/assets/icons/robot_default.png" type="image/png" />
+    <script src="/shared/js/config.js" defer></script>
+    <script src="/shared/js/helper.js" defer></script>
+    <script src="/shared/js/session.js" defer></script>
+    <script src="/shared/js/youtube.js" defer></script>
+    <script src="/shared/js/template.js" defer></script>
+    <script src="/shared/js/auth.js" defer></script>
     <script src="/shared/js/api.js" defer></script>
-    <script src="/shared/js/header.js"></script>
-    <script src="/shared/js/template.js"></script>
     <script src="/shared/js/quizoverview.js" defer></script>
-    <link
-      rel="icon"
-      href="/assets/icons/robot_default.png"
-      type="image/x-icon"
-    />
   </head>
-  <body onload="initHeader(); init()">
-    <header>
-      <div id="header" class="z_5"></div>
-    </header>
-    <main class="d_flex_cc_ac">
-      <div class="overview d_flex_cc_ac">
-        <section class="container-left-split">
-          <h2>Your previous quizes</h2>
-          <h4>Today</h4>
-          <ul id="today-quizzes"></ul>
-          <h4>The last 7 days</h4>
-          <ul id="last-quizzes-7days"></ul>
-          <button class="btn" onclick="seeAll()">See all</button>
-        </section>
+  <body class="app-page" onload="init()">
+    <a class="skip-link" href="#main">Zum Inhalt springen</a>
+    <header id="app-header" class="app-header"></header>
 
-        <div class="spacer"></div>
+    <main id="main" class="app-main">
+      <a class="button button--text overview-back" href="/pages/library.html">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m15 18-6-6 6-6" />
+        </svg>
+        Zur Bibliothek
+      </a>
 
-        <section class="container-right-split">
-          <h1>Here´s how i transformed your video into interactive quiz.</h1>
-          <h2>Headline</h2>
-          <div class="description-container d_flex_cs_as flex_dir_row">
-            <div>
-              <div class="input-wrapper">
-                <img
-                  src="/assets/icons/input_pen_blue.png"
-                  class="pen"
-                  alt="image of a pen"
-                  id="pen"
-                />
-                <input class="input" type="text" id="headline" />
-              </div>
-              <h2>Description</h2>
-              <div class="input-wrapper wrapable">
-                <img
-                  src="/assets/icons/input_pen_blue.png"
-                  class="hook"
-                  alt="a pen"
-                  id="hook"
-                />
-                <textarea id="description" rows="10"></textarea>
-                <button class="btn btn-quiz" onclick="goToQuiz()">
-                  Go to quiz
-                </button>
-              </div>
-            </div>
+      <p id="overview-loading" class="overview-state" role="status">Quiz wird geladen …</p>
+      <div id="overview-error" class="overview-state" role="alert" hidden>
+        <p>Dieses Quiz gibt es nicht oder es gehört zu einem anderen Konto.</p>
+        <a class="button button--secondary" href="/pages/library.html">Zur Bibliothek</a>
+      </div>
+
+      <div id="overview-content" class="overview" hidden>
+        <section class="overview-hero" aria-labelledby="quiz-heading">
+          <div class="overview-hero__info">
+            <p class="overview-hero__eyebrow">Quiz aus einem YouTube-Video</p>
+            <h1 id="quiz-heading"></h1>
+            <p id="quiz-description" class="overview-hero__description"></p>
+            <p id="quiz-meta" class="overview-hero__meta"></p>
+            <a id="start-link" class="button button--primary overview-hero__start" href="#">Quiz starten</a>
+          </div>
+          <div class="overview-hero__video">
             <iframe
-              id="iFrame-video"
-              src=""
-              title="YouTube video"
+              id="quiz-video"
+              title="YouTube-Video zum Quiz"
+              loading="lazy"
+              allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
               allowfullscreen
             ></iframe>
           </div>
         </section>
+
+        <details id="edit-section" class="overview-edit">
+          <summary>Titel und Beschreibung bearbeiten</summary>
+          <form id="edit-form" class="overview-edit__form">
+            <div class="overview-field">
+              <label for="headline">Titel</label>
+              <input id="headline" type="text" maxlength="255" required />
+            </div>
+            <div class="overview-field">
+              <label for="description">Beschreibung</label>
+              <textarea id="description" rows="4"></textarea>
+            </div>
+            <div class="overview-edit__actions">
+              <button type="submit" class="button button--primary">Speichern</button>
+              <p id="edit-status" class="overview-edit__status" role="status"></p>
+            </div>
+          </form>
+        </details>
+
+        <section class="overview-more" aria-labelledby="more-title">
+          <h2 id="more-title">Weitere Quizze</h2>
+          <ul id="more-quizzes" class="overview-more__list"></ul>
+          <a class="button button--secondary" href="/pages/library.html">Alle Quizze in der Bibliothek</a>
+        </section>
       </div>
     </main>
-    <footer class="footer cu_po z-6 pos_abs">
-      <a href="./legalnotice.html">Legal notice</a>
-      <a href="./privacy.html">Privacy policy</a>
-    </footer>
+
+    <footer id="footer" class="site-footer"></footer>
   </body>
 </html>
