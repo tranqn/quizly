@@ -1,0 +1,72 @@
+[
+  {
+    "seite": "start",
+    "viewport": "desktop",
+    "url": "https://quizly.quocnamtran.com/",
+    "verstoesse": [
+      {
+        "id": "nested-interactive",
+        "impact": "serious",
+        "knoten": 2
+      }
+    ]
+  },
+  {
+    "seite": "login",
+    "viewport": "desktop",
+    "url": "https://quizly.quocnamtran.com/pages/login.html",
+    "verstoesse": [
+      {
+        "id": "link-name",
+        "impact": "serious",
+        "knoten": 1
+      },
+      {
+        "id": "nested-interactive",
+        "impact": "serious",
+        "knoten": 1
+      }
+    ]
+  },
+  {
+    "seite": "registrierung",
+    "viewport": "desktop",
+    "url": "https://quizly.quocnamtran.com/pages/registration.html",
+    "verstoesse": []
+  },
+  {
+    "seite": "start",
+    "viewport": "mobil",
+    "url": "https://quizly.quocnamtran.com/",
+    "verstoesse": [
+      {
+        "id": "nested-interactive",
+        "impact": "serious",
+        "knoten": 2
+      }
+    ]
+  },
+  {
+    "seite": "login",
+    "viewport": "mobil",
+    "url": "https://quizly.quocnamtran.com/pages/login.html",
+    "verstoesse": [
+      {
+        "id": "link-name",
+        "impact": "serious",
+        "knoten": 1
+      },
+      {
+        "id": "nested-interactive",
+        "impact": "serious",
+        "knoten": 1
+      }
+    ]
+  },
+  {
+    "seite": "registrierung",
+    "viewport": "mobil",
+    "url": "https://quizly.quocnamtran.com/pages/registration.html",
+    "verstoesse": []
+  }
+]
