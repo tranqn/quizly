@@ -33,6 +33,14 @@ class Command(BaseCommand):
     @transaction.atomic
     def handle(self, *args, **options):
         guest = self._ensure_guest()
+        if guest.has_usable_password():
+            # Someone registered this name before the guest existed. Leave
+            # their account alone; the guest login stays disabled (503).
+            self.stderr.write(
+                f'User "{guest.username}" has a password, so it is a real account. '
+                'Not seeding; set GUEST_USERNAME to a free name.'
+            )
+            return
         if options['reset']:
             guest.quizzes.all().delete()
         if guest.quizzes.exists():

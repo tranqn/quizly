@@ -15,20 +15,30 @@ from rest_framework.exceptions import APIException
 from ..models import Question, Quiz
 
 
-class AudioDownloadError(APIException):
-    """Raised when yt-dlp cannot fetch the video audio (e.g. YouTube bot block)."""
+class PipelineError(APIException):
+    """Base for pipeline failures: the body carries a stable `code` next to
+    the human-readable `detail`, so clients need not parse the message."""
 
     status_code = 500
+
+    def __init__(self):
+        super().__init__({'detail': self.default_detail, 'code': self.default_code})
+
+
+class AudioDownloadError(PipelineError):
+    """Raised when yt-dlp cannot fetch the video audio (e.g. YouTube bot block)."""
+
+    default_code = 'audio_download_failed'
     default_detail = (
         'Could not fetch the video audio. YouTube may be blocking the server; '
         'try again later or contact the administrator to refresh the cookies.'
     )
 
 
-class QuizGenerationError(APIException):
+class QuizGenerationError(PipelineError):
     """Raised when Gemini fails to return usable quiz data (overload, bad JSON)."""
 
-    status_code = 500
+    default_code = 'quiz_generation_failed'
     default_detail = (
         'Quiz generation is temporarily unavailable (the AI service is busy). '
         'Please try again in a moment.'

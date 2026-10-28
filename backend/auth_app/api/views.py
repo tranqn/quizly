@@ -78,7 +78,9 @@ class GuestLoginView(LoginView):
         user = User.objects.filter(
             username=settings.GUEST_USERNAME, is_active=True,
         ).first()
-        if user is None:
+        # A usable password means a real person owns this name; never hand
+        # their account to anonymous visitors.
+        if user is None or user.has_usable_password():
             return Response({'detail': 'Guest access is not available.'}, status=503)
         response = self.build_login_response(user)
         response.data['user']['is_guest'] = True

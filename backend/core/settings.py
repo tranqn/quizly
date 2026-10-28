@@ -177,6 +177,17 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'guest_login': '30/hour',
     },
+    # Caddy on the host is the only proxy; take the client IP it appends to
+    # X-Forwarded-For instead of the whole (client-controlled) header.
+    'NUM_PROXIES': int(os.environ.get('NUM_PROXIES', '1')),
+}
+
+# Throttle counters must be shared by all gunicorn workers.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': os.environ.get('CACHE_DIR', '/tmp/quizly-cache'),
+    }
 }
 
 # simplejwt: short-lived access tokens, refresh rotation with blacklisting.
