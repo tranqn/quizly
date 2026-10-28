@@ -1,143 +1,112 @@
-const headlineInput = document.getElementById("headline");
-const penIconHeadline = document.getElementById("pen");
-const descriptionInput = document.getElementById("description");
-const iFrame = document.getElementById("iFrame-video");
-const hookIconTextarea = document.getElementById("hook");
+// Quiz-Übersicht: Video, Start, Titel und Beschreibung bearbeiten, weitere Quizze.
 
-let CURRENTQUIZ;
-let QUIZZES;
+const MORE_QUIZZES_LIMIT = 5;
+
+let currentQuiz = null;
 
 async function init() {
-  CURRENTQUIZ = await loadQuizzes(getQuizID());
-  if (!CURRENTQUIZ) return;
-  headlineInput.value = CURRENTQUIZ.title;
-  descriptionInput.value = CURRENTQUIZ.description;
-  iFrame.src = getEmbededURL(CURRENTQUIZ.video_url);
-  QUIZZES = await loadQuizzes();
-  await renderPreviousQuizzes();
-  setupEventListeners();
+  initAppHeader();
+  initFooter();
+
+  const id = getQuizID();
+  currentQuiz = id ? await loadQuizzes(id) : null;
+  document.getElementById("overview-loading").hidden = true;
+
+  if (!currentQuiz) {
+    document.getElementById("overview-error").hidden = false;
+    return;
+  }
+
+  renderQuiz();
+  setupEditForm();
+  document.getElementById("overview-content").hidden = false;
+  renderMoreQuizzes(await loadQuizzes());
 }
 
-function renderPreviousQuizzes() {
-  if (!QUIZZES.length <= 0 && QUIZZES != null) {
-    renderTodayQuizzes();
-    renderLast7DaysQuizzes();
+function renderQuiz() {
+  document.title = `${currentQuiz.title} · Quizly`;
+  document.getElementById("quiz-heading").textContent = currentQuiz.title;
+  const description = document.getElementById("quiz-description");
+  description.textContent = currentQuiz.description;
+  description.hidden = !currentQuiz.description;
+
+  const result = getResults()[currentQuiz.id];
+  const resultText = result
+    ? ` · zuletzt ${result.correct} von ${result.total} richtig`
+    : "";
+  document.getElementById("quiz-meta").textContent =
+    `${currentQuiz.questions.length} Fragen · erstellt am ${formatDate(currentQuiz.created_at)}${resultText}`;
+
+  document.getElementById("start-link").href = `/pages/quiz.html?id=${currentQuiz.id}`;
+  document.getElementById("start-link").textContent = result ? "Nochmal lösen" : "Quiz starten";
+
+  const video = document.getElementById("quiz-video");
+  const videoId = getYouTubeId(currentQuiz.video_url);
+  if (videoId) {
+    // The no-cookie host sets no tracking cookies until the visitor presses play.
+    video.src = `https://www.youtube-nocookie.com/embed/${videoId}`;
+    video.title = `YouTube-Video: ${currentQuiz.title}`;
+  } else {
+    video.parentElement.hidden = true;
   }
 }
 
-function renderTodayQuizzes() {
-  const todayContainer = document.getElementById("today-quizzes");
-  todayContainer.innerHTML = "";
+/* ---------- Bearbeiten ---------- */
 
-  QUIZZES.forEach((quiz) => {
-    if (isToday(quiz.created_at)) {
-      let quizIndex = quiz.id;
-      let li = document.createElement("li");
-      li.setAttribute("onclick", `changeOverviewToQuiz(${quizIndex})`);
-      li.innerHTML = quiz.title;
-      if (todayContainer.childElementCount <= 5) {
-        todayContainer.appendChild(li);
-      }
-    }
-  });
-}
-
-function renderLast7DaysQuizzes() {
-  const sevenDaysContainer = document.getElementById("last-quizzes-7days");
-  sevenDaysContainer.innerHTML = "";
-
-  QUIZZES.forEach((quiz) => {
-    if (isOlderThan7Days(quiz.created_at)) {
-      let quizIndex = quiz.id;
-      let li = document.createElement("li");
-      li.setAttribute("onclick", `changeOverviewToQuiz(${quizIndex})`);
-      li.innerHTML = quiz.title;
-
-      if (sevenDaysContainer.childElementCount <= 5) {
-        sevenDaysContainer.appendChild(li);
-      }
-    }
-  });
-}
-
-function isToday(dateString) {
-  const date = new Date(dateString);
-  const today = new Date();
-
-  return (
-    date.getUTCFullYear() === today.getUTCFullYear() &&
-    date.getUTCMonth() === today.getUTCMonth() &&
-    date.getUTCDate() === today.getUTCDate()
-  );
-}
-
-function isOlderThan7Days(dateString) {
-  const date = new Date(dateString);
-  const now = new Date();
-  const today = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
-  );
-  const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-  return date >= sevenDaysAgo && date < today;
-}
-
-function getEmbededURL(url) {
-  // Accept all common YouTube URL shapes: watch?v=ID, youtu.be/ID, /embed/ID,
-  // /shorts/ID, /live/ID (with or without extra query params). IDs are 11 chars.
-  const match = url.match(
-    /(?:v=|\/(?:embed|shorts|live)\/|youtu\.be\/)([A-Za-z0-9_-]{11})/
-  );
-  if (match) {
-    return `https://www.youtube.com/embed/${match[1]}`;
+function setupEditForm() {
+  const section = document.getElementById("edit-section");
+  if (isGuest()) {
+    section.remove();
+    return;
   }
-  return `https://placehold.co/450x250?text=Video+not+found`;
+  document.getElementById("headline").value = currentQuiz.title;
+  document.getElementById("description").value = currentQuiz.description;
+  document.getElementById("edit-form").addEventListener("submit", saveQuiz);
 }
 
-/**
- * Sets up all event listeners for the page
- */
-function setupEventListeners() {
-  setupInputTracking(headlineInput, penIconHeadline, "title");
-  setupInputTracking(descriptionInput, hookIconTextarea, "description");
-}
+async function saveQuiz(event) {
+  event.preventDefault();
+  const status = document.getElementById("edit-status");
+  const title = document.getElementById("headline").value.trim();
 
-/**
- * Sets up input change tracking with icon feedback
- * @param {HTMLElement} inputElement - The input element to track
- * @param {HTMLElement} iconElement - The icon element to update
- * @param {string} storageKey - The localStorage key to save to
- */
-function setupInputTracking(inputElement, iconElement, key) {
-  let timeoutId;
+  if (!title) {
+    status.textContent = "Der Titel darf nicht leer sein.";
+    document.getElementById("headline").focus();
+    return;
+  }
 
-  inputElement.addEventListener("keydown", function () {
-    iconElement.src = "/assets/icons/input_pen_green.png";
-    clearTimeout(timeoutId);
-
-    timeoutId = setTimeout(() => {
-      iconElement.src = "/assets/icons/green_hook.png";
-      CURRENTQUIZ[key] = inputElement.value;
-      let id = CURRENTQUIZ.id;
-      updateQuiz(id, CURRENTQUIZ);
-    }, 1000);
+  status.textContent = "Wird gespeichert …";
+  const updated = await updateQuiz(currentQuiz.id, {
+    title,
+    description: document.getElementById("description").value.trim(),
   });
+
+  if (!updated) {
+    status.textContent = "Speichern hat nicht geklappt. Bitte versuche es erneut.";
+    return;
+  }
+  currentQuiz = { ...currentQuiz, ...updated };
+  renderQuiz();
+  status.textContent = "Gespeichert.";
 }
 
-/**
- * Navigates to the quiz page
- */
-function goToQuiz() {
-  let id = CURRENTQUIZ.id;
-  window.location.href = `/pages/quiz.html?id=${id}`;
-}
+/* ---------- Weitere Quizze ---------- */
 
-function changeOverviewToQuiz(id) {
-  window.location.href = `/pages/quizoverview.html?id=${id}`;
-}
-
-async function seeAll() {
-  let isOverview = true;
-  let id = CURRENTQUIZ.id;
-  window.location.href =
-    "/pages/quiz.html?id=" + id + "&isOverview=" + isOverview;
+function renderMoreQuizzes(quizzes) {
+  const others = (quizzes || []).filter((quiz) => quiz.id !== currentQuiz.id);
+  const section = document.querySelector(".overview-more");
+  if (!others.length) {
+    section.hidden = true;
+    return;
+  }
+  document.getElementById("more-quizzes").innerHTML = others
+    .slice(0, MORE_QUIZZES_LIMIT)
+    .map(
+      (quiz) => `
+        <li>
+          <a href="/pages/quizoverview.html?id=${quiz.id}">${escapeHtml(quiz.title)}</a>
+          <span>${quiz.questions.length} Fragen · ${formatDate(quiz.created_at)}</span>
+        </li>`,
+    )
+    .join("");
 }
