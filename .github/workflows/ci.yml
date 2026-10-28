@@ -40,6 +40,9 @@ jobs:
       - name: Migrations are in sync with the models
         run: python manage.py makemigrations --check --dry-run
 
+      - name: Tests
+        run: python manage.py test
+
       # Whitenoise serves the vanilla-JS frontend from FRONTEND_DIR, so a broken
       # static setup means a blank site. STATIC_ROOT is hardcoded to
       # backend/staticfiles; in a CI workspace that is throwaway anyway.

@@ -3,6 +3,7 @@ from django.urls import path
 
 from .views import (
     CookieTokenRefreshView,
+    GuestLoginView,
     LoginView,
     LogoutView,
     RegistrationView,
@@ -11,6 +12,7 @@ from .views import (
 urlpatterns = [
     path('register/', RegistrationView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
+    path('guest-login/', GuestLoginView.as_view(), name='guest-login'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('token/refresh/', CookieTokenRefreshView.as_view(), name='token_refresh'),
 ]

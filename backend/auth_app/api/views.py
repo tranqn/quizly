@@ -1,8 +1,10 @@
-"""Authentication endpoints: register, login, refresh and logout."""
+"""Authentication endpoints: register, login, guest login, refresh and logout."""
 from django.conf import settings
 from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -62,6 +64,24 @@ class LoginView(APIView):
         }, status=200)
         set_token_cookie(response, 'access_token', refresh.access_token)
         set_token_cookie(response, 'refresh_token', refresh)
+        return response
+
+
+class GuestLoginView(LoginView):
+    """Log in as the shared read-only demo account without credentials."""
+
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'guest_login'
+
+    def post(self, request):
+        """Start a session for the guest user, once `seed_demo` has created it."""
+        user = User.objects.filter(
+            username=settings.GUEST_USERNAME, is_active=True,
+        ).first()
+        if user is None:
+            return Response({'detail': 'Guest access is not available.'}, status=503)
+        response = self.build_login_response(user)
+        response.data['user']['is_guest'] = True
         return response
 
 

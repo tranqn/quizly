@@ -174,6 +174,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'DEFAULT_THROTTLE_RATES': {
+        'guest_login': '30/hour',
+    },
 }
 
 # simplejwt: short-lived access tokens, refresh rotation with blacklisting.
@@ -188,6 +191,10 @@ SIMPLE_JWT = {
 # HttpOnly auth cookies. 'secure' only over HTTPS, so disabled in local DEBUG.
 AUTH_COOKIE_SECURE = not DEBUG
 AUTH_COOKIE_SAMESITE = 'Lax'
+
+# Shared read-only demo account behind "Als Gast testen". `manage.py seed_demo`
+# creates it; until then the guest login answers 503.
+GUEST_USERNAME = os.environ.get('GUEST_USERNAME', 'gast')
 
 # CORS: only needed when the frontend is served from a different origin. In the
 # default same-origin deploy (WhiteNoise serves the frontend) this is unused.
