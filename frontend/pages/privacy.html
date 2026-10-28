@@ -1,93 +1,107 @@
 <!doctype html>
-<html lang="en">
+<html lang="de">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Quizly-Privacy Policy</title>
-    <link rel="stylesheet" href="../styles.css" />
+    <title>Datenschutz · Quizly</title>
+    <meta name="description" content="Datenschutzerklärung von Quizly: welche Daten bei der Nutzung anfallen und wofür." />
+    <link rel="stylesheet" href="../shared/css/fonts.css" />
     <link rel="stylesheet" href="../shared/css/variables.css" />
     <link rel="stylesheet" href="../shared/css/standart.css" />
-    <link rel="stylesheet" href="../shared/css/fonts.css" />
+    <link rel="stylesheet" href="../shared/css/app.css" />
     <link rel="stylesheet" href="../shared/css/policy.css" />
-    <link
-      rel="icon"
-      href="../assets/icons/robot_default.png"
-      type="image/x-icon"
-    />
-    <script src="../shared/js/header.js"></script>
-    <script src="../shared/js/template.js"></script>
-    <script src="../shared/js/helper.js"></script>
+    <link rel="icon" href="../assets/icons/robot_default.png" type="image/png" />
+    <script src="../shared/js/template.js" defer></script>
   </head>
-  <body onload="initHeader()" class="pos_rel">
-    <section>
-      <div class="background-wave">
-        <img src="/assets/icons/wave.png" alt="a background wave image" />
-      </div>
-    </section>
-    <header>
-      <div id="header" class="z_5"></div>
+  <body class="app-page" onload="initFooter()">
+    <a class="skip-link" href="#main">Zum Inhalt springen</a>
+    <header class="app-header">
+      <a href="/index.html" class="app-header__logo">
+        <img src="/assets/icons/logoheader.png" alt="Quizly Startseite" width="150" height="43" />
+      </a>
     </header>
 
-    <main class="main-privacy">
-      <div class="p48">
-        <h2>1. Controller</h2>
-        <p>
-          Quoc Nam Tran, Niedermarkt 35, 04736 Waldheim, Germany<br />
-          Email: <a href="mailto:info@quocnamtran.com">info@quocnamtran.com</a>
-        </p>
+    <main id="main" class="app-main legal">
+      <h1>Datenschutzerklärung</h1>
 
-        <h2>2. About this project</h2>
-        <p>
-          Quizly is a private portfolio/demo project (not a commercial
-          service), built as part of a fullstack developer training program.
-          This notice explains what happens to your data when you use it.
-        </p>
+      <h2>1. Verantwortlicher</h2>
+      <p>
+        Quóc Nam Tràn, Niedermarkt 35, 04736 Waldheim, Deutschland<br />
+        E-Mail: <a href="mailto:info@quocnamtran.com">info@quocnamtran.com</a>
+      </p>
 
-        <h2>3. Hosting &amp; server logs</h2>
-        <p>
-          This site runs on my own server. Every request is logged with
-          technical access data (IP address, timestamp, requested page,
-          browser type) for security and operational purposes only.
-        </p>
+      <h2>2. Über dieses Projekt</h2>
+      <p>
+        Quizly ist ein privates Portfolio- und Demo-Projekt (kein kommerzieller Dienst), entstanden
+        im Rahmen einer Weiterbildung zum Fullstack-Entwickler. Diese Erklärung beschreibt, was mit
+        deinen Daten passiert, wenn du Quizly nutzt.
+      </p>
 
-        <h2>4. Account &amp; authentication</h2>
-        <p>
-          Creating a demo account stores your email address and a hashed
-          password. Login uses a JSON Web Token stored in an HttpOnly cookie,
-          so the token is never exposed to client-side scripts. Legal basis:
-          Art. 6(1)(b) GDPR (performance of the demo you request by signing
-          up).
-        </p>
+      <h2>3. Hosting und Server-Logs</h2>
+      <p>
+        Die Seite läuft auf meinem eigenen Server. Bei jedem Aufruf werden technische Zugriffsdaten
+        protokolliert (IP-Adresse, Zeitpunkt, aufgerufene Seite, Browsertyp), ausschließlich für
+        Sicherheit und Betrieb.
+      </p>
 
-        <h2>5. YouTube URLs &amp; generated quizzes</h2>
-        <p>
-          When you submit a YouTube URL, the backend downloads the audio,
-          transcribes it (Whisper) and generates quiz questions from the
-          transcript using the Google Gemini API. The submitted URL and the
-          resulting quiz are stored under your account so you can replay it
-          later.
-        </p>
+      <h2>4. Konto und Anmeldung</h2>
+      <p>
+        Wenn du ein Demo-Konto anlegst, werden dein Benutzername, deine E-Mail-Adresse und ein
+        gehashtes Passwort gespeichert. Die Anmeldung nutzt JSON Web Tokens in HttpOnly-Cookies,
+        sodass Skripte im Browser die Tokens nie auslesen können. Rechtsgrundlage: Art. 6 Abs. 1
+        lit. b DSGVO (Bereitstellung der Demo, die du mit der Registrierung anforderst).
+      </p>
 
-        <h2>6. Retention &amp; deletion</h2>
-        <p>
-          Demo accounts and generated quizzes are not kept indefinitely and
-          can be deleted on request at any time by emailing the address
-          above.
-        </p>
+      <h2>5. Gastzugang</h2>
+      <p>
+        Der Gastzugang ist ein gemeinsames Demo-Konto ohne persönliche Daten. Er kann die
+        Beispiel-Quizze nur ansehen und lösen. Um Missbrauch zu verhindern, ist die Zahl der
+        Gast-Anmeldungen pro IP-Adresse begrenzt; dafür wird die IP-Adresse höchstens eine Stunde
+        im Arbeitsspeicher des Servers gezählt.
+      </p>
 
-        <h2>7. Your rights</h2>
-        <p>
-          You have the right to access, rectify, erase, and restrict
-          processing of your personal data, and the right to lodge a
-          complaint with a data protection supervisory authority. Contact the
-          address above to exercise these rights.
-        </p>
-      </div>
+      <h2>6. YouTube-Links und erzeugte Quizze</h2>
+      <p>
+        Wenn du einen YouTube-Link einreichst, lädt der Server die Tonspur herunter, transkribiert
+        sie (Whisper, auf dem eigenen Server) und lässt aus dem Transkript über die Google Gemini
+        API Quizfragen erstellen. Der Link und das fertige Quiz werden unter deinem Konto
+        gespeichert, damit du es später erneut lösen kannst.
+      </p>
+
+      <h2>7. Vorschaubilder und eingebettete Videos von YouTube</h2>
+      <p>
+        Sobald du einen YouTube-Link eingibst oder deine Bibliothek öffnest, lädt dein Browser die
+        Vorschaubilder der Videos direkt von <code>img.youtube.com</code>. In der Quiz-Übersicht
+        wird das Video über <code>youtube-nocookie.com</code> eingebettet. In beiden Fällen
+        überträgt dein Browser deine IP-Adresse an Google Ireland Limited, Gordon House, Barrow
+        Street, Dublin 4, Irland. Beim eingebetteten Video setzt YouTube nach eigenen Angaben erst
+        dann Cookies, wenn du das Video abspielst.
+      </p>
+
+      <h2>8. Speicherung in deinem Browser</h2>
+      <p>
+        Quizly legt in deinem Browser drei Einträge ab, die nie an den Server gesendet werden:
+        ob du als Gast angemeldet bist (<code>quizly:guest</code>), deine letzten Quiz-Ergebnisse
+        (<code>quizly:results</code>) und einen YouTube-Link, den du vor der Anmeldung eingegeben
+        hast (<code>quizly:pending-url</code>, nur bis zum Schließen des Tabs). Du kannst die
+        Einträge jederzeit über die Website-Daten deines Browsers löschen.
+      </p>
+
+      <h2>9. Speicherdauer und Löschung</h2>
+      <p>
+        Demo-Konten und erzeugte Quizze werden nicht unbegrenzt aufbewahrt. Du kannst eigene Quizze
+        jederzeit in der Bibliothek löschen und die Löschung deines Kontos per E-Mail an die oben
+        genannte Adresse verlangen.
+      </p>
+
+      <h2>10. Deine Rechte</h2>
+      <p>
+        Du hast das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung
+        deiner personenbezogenen Daten sowie das Recht, dich bei einer
+        Datenschutz-Aufsichtsbehörde zu beschweren. Wende dich dafür an die oben genannte Adresse.
+      </p>
     </main>
 
-    <footer class="footer z-6 pos_abs">
-      <a href="./legalnotice.html">Legal notice</a>
-      <a href="./privacy.html">Privacy policy</a>
-    </footer>
+    <footer id="footer" class="site-footer"></footer>
   </body>
 </html>
