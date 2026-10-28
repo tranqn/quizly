@@ -17,6 +17,11 @@ async function init() {
     event.preventDefault();
     closeDeleteDialog();
   });
+  await loadLibrary();
+}
+
+/** Also used by "Erneut versuchen" after a failed load. */
+async function loadLibrary() {
   // Without a session apiFetch is already redirecting to the login; the
   // pending link must survive until the user is back here.
   if (await renderLibrary()) handlePendingUrl();
@@ -115,11 +120,11 @@ function showProgress(running) {
 function handlePendingUrl() {
   const pending = getPendingUrl();
   if (!pending) return;
+  setPendingUrl(null);
   document.getElementById("url").value = pending;
   updateUrlPreview(false);
-  if (isGuest()) return;
-  setPendingUrl(null);
-  startCreation();
+  // Guests cannot create quizzes; the notice above the form explains why.
+  if (!isGuest()) startCreation();
 }
 
 /* ---------- Liste ---------- */
@@ -257,7 +262,8 @@ async function confirmDelete() {
   quizToDelete = null;
 
   if (!(await removeQuiz(id))) {
-    showToastMessage(true, "Das Quiz konnte nicht gelöscht werden.");
+    showToastMessage(true, "Das Quiz konnte nicht gelöscht werden. Bitte versuche es erneut.");
+    document.querySelector(`#quiz-card-${id} .quiz-card__menu-button`)?.focus();
     return;
   }
 

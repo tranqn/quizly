@@ -47,6 +47,21 @@ input:-webkit-autofill:focus {
 html {
   background-color: var(--color-bg);
   color: var(--color-text);
+  color-scheme: dark;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+a,
+button,
+input,
+label,
+summary {
+  touch-action: manipulation;
 }
 
 body {
@@ -124,6 +139,10 @@ body {
 
 .button--secondary:hover {
   background: var(--bg-color-green-hover);
+}
+
+.button--text:hover {
+  color: var(--color-primary);
 }
 
 .button--text {

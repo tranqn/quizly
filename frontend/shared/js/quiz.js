@@ -11,7 +11,7 @@ async function initQuiz() {
   initFooter();
 
   const id = getQuizID();
-  document.getElementById("back-link").href = `/pages/quizoverview.html?id=${id}`;
+  if (id) document.getElementById("back-link").href = `/pages/quizoverview.html?id=${id}`;
   currentQuiz = id ? await loadQuizzes(id) : null;
   document.getElementById("quiz-loading").hidden = true;
 
@@ -25,15 +25,16 @@ async function initQuiz() {
   document.getElementById("prev-button").addEventListener("click", previousQuestion);
   document.getElementById("next-button").addEventListener("click", nextQuestion);
   document.addEventListener("keydown", handleShortcut);
-  restartQuiz();
+  restartQuiz(false);
 }
 
-function restartQuiz() {
+/** From the result screen focus moves to the first question; on page load it stays put. */
+function restartQuiz(moveFocus = true) {
   currentIndex = 0;
   chosenAnswers = [];
   document.getElementById("quiz-result").hidden = true;
   document.getElementById("quiz-play").hidden = false;
-  renderQuestion(false);
+  renderQuestion(moveFocus);
 }
 
 /* ---------- Frage ---------- */

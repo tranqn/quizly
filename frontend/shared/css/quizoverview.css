@@ -46,6 +46,12 @@
   color: var(--color-text-accent);
 }
 
+.overview-hero h1,
+.overview-hero__description,
+.overview-more__list a {
+  overflow-wrap: anywhere;
+}
+
 .overview-hero h1 {
   margin: 0 0 var(--space-3);
   font-family: var(--font-heading);

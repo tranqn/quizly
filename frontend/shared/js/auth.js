@@ -10,7 +10,7 @@ async function parseJsonSafe(response) {
   }
 }
 
-const inputs = document.querySelectorAll("input");
+const inputs = document.querySelectorAll(".auth-form input");
 const checkboxTerms = document.querySelector('input[name="terms"]');
 const pwToggle = document.getElementById("input-lock-password");
 const repPwToggle = document.getElementById("input-lock-repeated-pw");
@@ -71,10 +71,11 @@ async function loginUser(event) {
   const allValid = validateAllFields(form);
 
   if (!allValid) {
-    showToastMessage(true, "Bitte fülle alle Felder aus.");
+    focusFirstError(form);
     return;
   }
   const body = getFormData(form, "login");
+  setSubmitting(form, true);
 
   try {
     const response = await fetch(`${API_BASE_URL}${LOGIN_URL}`, {
@@ -92,6 +93,7 @@ async function loginUser(event) {
           ? "Benutzername oder Passwort stimmen nicht."
           : `Anmeldung fehlgeschlagen (Fehler ${response.status}).`;
       showToastMessage(true, message);
+      setSubmitting(form, false);
       return;
     }
 
@@ -99,7 +101,22 @@ async function loginUser(event) {
     window.location.href = "/pages/library.html";
   } catch (error) {
     showToastMessage(true, "Keine Verbindung zum Server. Bitte versuche es gleich noch einmal.");
+    setSubmitting(form, false);
   }
+}
+
+/** Disables the submit button while a request runs, so it cannot fire twice. */
+function setSubmitting(form, submitting) {
+  const button = form.querySelector('[type="submit"]');
+  button.disabled = submitting;
+  button.setAttribute("aria-busy", String(submitting));
+}
+
+function focusFirstError(form) {
+  const invalid =
+    form.querySelector('[aria-invalid="true"]') ||
+    (document.getElementById("checkbox-error")?.textContent && form.querySelector('[name="terms"]'));
+  if (invalid) invalid.focus();
 }
 
 async function loginAsGuest() {
@@ -131,10 +148,11 @@ async function signUpUser(event) {
   const allValid = validateAllFields(form);
 
   if (!allValid) {
-    showToastMessage(true, "Bitte fülle alle Felder aus.");
+    focusFirstError(form);
     return;
   }
   const body = getFormData(form, "signup");
+  setSubmitting(form, true);
 
   try {
     const response = await fetch(`${API_BASE_URL}${REGISTER_URL}`, {
@@ -156,34 +174,38 @@ async function signUpUser(event) {
         data.confirmed_password ||
         `Fehler ${response.status}`;
       showToastMessage(true, `Registrierung fehlgeschlagen: ${reason}`);
+      setSubmitting(form, false);
       return;
     }
 
     window.location.href = "/pages/login.html?registriert=1";
   } catch (error) {
     showToastMessage(true, "Keine Verbindung zum Server. Bitte versuche es gleich noch einmal.");
+    setSubmitting(form, false);
   }
 }
 
-async function logOut(notoken) {
+async function logOut() {
   setGuest(false);
   try {
-    await fetch(`${API_BASE_URL}${LOGOUT_URL}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-
-      credentials: "include",
-    });
-    if (notoken) {
-      window.location.href = "/pages/login.html";
-    } else {
-      window.location.href = "/index.html";
+    // The access token lives 5 minutes. After a pause the first attempt is a
+    // 401; refresh once and retry, so the refresh token really gets revoked
+    // and both cookies are cleared.
+    let response = await postLogout();
+    if (response.status === 401 && (await refreshToken())) {
+      response = await postLogout();
     }
-  } catch (error) {
+  } finally {
     window.location.href = "/index.html";
   }
+}
+
+function postLogout() {
+  return fetch(`${API_BASE_URL}${LOGOUT_URL}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+  });
 }
 
 function validateAllFields(form) {
@@ -289,12 +311,10 @@ function togglePasswordVisibility(input, icon) {
   if (input.type === "password") {
     input.type = "text";
     icon.querySelector("img").src = "/assets/icons/visibility.svg";
-    icon.setAttribute("aria-label", "Passwort verbergen");
     icon.setAttribute("aria-pressed", "true");
   } else {
     input.type = "password";
     icon.querySelector("img").src = "/assets/icons/visibility_off.svg";
-    icon.setAttribute("aria-label", "Passwort anzeigen");
     icon.setAttribute("aria-pressed", "false");
   }
 }

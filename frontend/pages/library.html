@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#070923" />
     <title>Bibliothek · Quizly</title>
     <meta name="description" content="Deine Quizly-Bibliothek: neue Quizze aus YouTube-Videos erstellen und vorhandene lösen." />
     <link rel="stylesheet" href="../shared/css/fonts.css" />
@@ -41,6 +42,7 @@
               id="url"
               class="url-form__input"
               type="url"
+              spellcheck="false"
               inputmode="url"
               autocomplete="off"
               placeholder="https://www.youtube.com/watch?v=…"
@@ -84,7 +86,7 @@
         </div>
         <div id="library-error" class="library__state" role="alert" hidden>
           <p><strong>Deine Quizze konnten nicht geladen werden.</strong></p>
-          <button type="button" class="button button--secondary" onclick="renderLibrary()">Erneut versuchen</button>
+          <button type="button" class="button button--secondary" onclick="loadLibrary()">Erneut versuchen</button>
         </div>
       </section>
     </main>
@@ -99,6 +101,6 @@
     </dialog>
 
     <footer id="footer" class="site-footer"></footer>
-    <img src="/assets/icons/wave.webp" alt="" class="app-wave" loading="lazy" decoding="async" />
+    <img src="/assets/icons/wave.webp" alt="" width="1440" height="1024" class="app-wave" loading="lazy" decoding="async" />
   </body>
 </html>
