@@ -1,92 +1,126 @@
 <!doctype html>
-<html lang="en">
+<html lang="de">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Quizly</title>
+    <title>Quizly · Aus jedem YouTube-Video ein Quiz</title>
+    <meta
+      name="description"
+      content="Quizly macht aus einem YouTube-Video ein Quiz mit zehn Fragen: Link einfügen, KI hört zu, Wissen testen. Ohne Konto als Gast ausprobieren."
+    />
+    <link rel="stylesheet" href="shared/css/fonts.css" />
     <link rel="stylesheet" href="shared/css/variables.css" />
     <link rel="stylesheet" href="shared/css/standart.css" />
+    <link rel="stylesheet" href="shared/css/toastmsg.css" media="print" onload="this.media='all'" />
     <link rel="stylesheet" href="styles.css" />
-    <script src="shared/js/template.js"></script>
+    <link rel="icon" href="assets/icons/robot_default.png" type="image/png" />
+    <script src="shared/js/config.js" defer></script>
+    <script src="shared/js/helper.js" defer></script>
+    <script src="shared/js/session.js" defer></script>
+    <script src="shared/js/youtube.js" defer></script>
+    <script src="shared/js/template.js" defer></script>
+    <script src="shared/js/auth.js" defer></script>
     <script src="script.js" defer></script>
-    <link
-      rel="icon"
-      href="assets/icons/robot_default.png"
-      type="image/x-icon"
-    />
   </head>
-  <body>
-    <main>
-      <article
-        class="index-main d_flex_cc_ac w_full flex_dir_col h_vh100 pos_rel w_full"
-      >
-        <section class="w_full d_flex_cc_ac">
-          <div id="quiz-container" class="pos_rel">
-            <img src="assets/icons/group2.png" alt="a speech bubble" />
-            <div id="bubble-text" class="pos_abs z_5"></div>
-          </div>
-        </section>
+  <body class="landing">
+    <a class="skip-link" href="#main">Zum Inhalt springen</a>
 
-        <section>
-          <div class="animation-container pos_rel">
-            <img
-              src="assets/icons/Ellipse23.png"
-              alt="spinning-circle"
-              class="circle-animation pos_abs"
-            />
-            <img
-              src="assets/icons/Ellipse27.png"
-              alt="spinning-circle"
-              class="circle-animation pos_abs"
-            />
-            <img
-              src="assets/icons/Ellipse25.png"
-              alt="spinning-circle"
-              class="circle-animation pos_abs"
-            />
-            <img
-              src="assets/icons/Ellipse22.png"
-              alt="spinning-circle"
-              class="circle-animation pos_abs"
-            />
-            <img
-              src="assets/icons/robot_default.png"
-              alt="a robot"
-              id="robot"
-              class="robot_default pos_abs z_5"
-            />
-          </div>
-        </section>
-        <img
-          src="assets/icons/wave.png"
-          alt="a robot"
-          class="wave pos_abs"
-          id="wave"
-        />
+    <header class="landing-header">
+      <a href="/index.html" class="landing-header__logo">
+        <img src="assets/icons/logoheader.png" alt="Quizly Startseite" width="150" height="43" />
+      </a>
+      <nav class="landing-header__nav" aria-label="Konto">
+        <a class="button button--text" href="pages/login.html">Anmelden</a>
+        <a class="button button--secondary" href="pages/registration.html">Registrieren</a>
+      </nav>
+    </header>
 
-        <section>
-          <div class="login-container d_flex_cc_ac gap_24">
-            <button
-              id="sign-up"
-              class="btn cu_po d_flex_cc_ac border_1_solid z_5"
-            >
-              <a
-                href="pages/registration.html"
-                class="w_full h_full d_flex_cc_ac"
-                >Sign up</a
-              >
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero__text">
+          <h1 id="hero-title">Aus jedem YouTube-Video ein Quiz</h1>
+          <p class="hero__lead">
+            Link einfügen, kurz warten, Wissen testen. Quizly hört sich das Video an und stellt dir
+            zehn Fragen dazu.
+          </p>
+
+          <form id="hero-form" class="url-form" novalidate>
+            <label for="hero-url" class="sr-only">YouTube-Link</label>
+            <input
+              id="hero-url"
+              class="url-form__input"
+              type="url"
+              inputmode="url"
+              autocomplete="off"
+              placeholder="https://www.youtube.com/watch?v=…"
+              aria-describedby="hero-url-hint"
+            />
+            <button type="submit" class="button button--primary">Quiz erstellen</button>
+            <p id="hero-url-hint" class="url-form__hint" aria-live="polite"></p>
+            <figure class="url-preview" hidden>
+              <img class="url-preview__thumb" alt="" width="160" height="90" />
+              <figcaption>Video erkannt. Nach der Anmeldung erstellen wir daraus dein Quiz.</figcaption>
+            </figure>
+          </form>
+
+          <p class="hero__guest">
+            Erst einmal ansehen?
+            <button type="button" class="button button--text" onclick="loginAsGuest()">
+              Als Gast testen
             </button>
-            <button
-              id="login"
-              class="btn cu_po d_flex_cc_ac border_1_solid z_5"
-            >
-              <a href="pages/login.html" class="w_full h_full d_flex_cc_ac"
-                >Login</a
-              >
-            </button>
-          </div>
-        </section>
-      </article>
+          </p>
+        </div>
+
+        <div class="hero__mascot" aria-hidden="true">
+          <p class="speech-bubble">Gib mir ein Video, ich mache ein Quiz daraus.</p>
+          <img src="assets/icons/robot_default.webp" alt="" width="454" height="379" class="hero__robot" />
+        </div>
+      </section>
+
+      <section class="steps" aria-labelledby="steps-title">
+        <h2 id="steps-title">So funktioniert's</h2>
+        <ol class="steps__list">
+          <li class="steps__item">
+            <span class="steps__number" aria-hidden="true">1</span>
+            <h3>Link einfügen</h3>
+            <p>Ein öffentliches YouTube-Video, am besten ein Erklärvideo bis etwa 15 Minuten.</p>
+          </li>
+          <li class="steps__item">
+            <span class="steps__number" aria-hidden="true">2</span>
+            <h3>Quizly hört zu</h3>
+            <p>Die Tonspur wird mit Whisper transkribiert, eine KI formuliert daraus zehn Fragen.</p>
+          </li>
+          <li class="steps__item">
+            <span class="steps__number" aria-hidden="true">3</span>
+            <h3>Quiz lösen</h3>
+            <p>Antworten wählen, Ergebnis sehen und Frage für Frage nachlesen, was richtig war.</p>
+          </li>
+        </ol>
+      </section>
+
+      <section class="example" aria-labelledby="example-title">
+        <h2 id="example-title">Beispiel aus dem Gastzugang</h2>
+        <figure class="example-card">
+          <p class="example-card__meta">Quiz zur Fotosynthese · Frage 5 von 10</p>
+          <p class="example-card__question">
+            Wie werden die Minikraftwerke in den Blättern genannt, die für die Fotosynthese
+            zuständig sind?
+          </p>
+          <ul class="example-card__options">
+            <li><span aria-hidden="true">A</span> Mitochondrien</li>
+            <li><span aria-hidden="true">B</span> Vakuolen</li>
+            <li class="is-correct"><span aria-hidden="true">C</span> Chloroplasten</li>
+            <li><span aria-hidden="true">D</span> Zellkerne</li>
+          </ul>
+          <figcaption>Erstellt aus „Wie Fotosynthese funktioniert" von Terra X Nature.</figcaption>
+        </figure>
+        <button type="button" class="button button--primary" onclick="loginAsGuest()">
+          Beispiel-Quizze als Gast lösen
+        </button>
+      </section>
     </main>
+
+    <footer id="footer" class="site-footer"></footer>
+    <img src="assets/icons/wave.webp" alt="" class="landing-wave" loading="lazy" decoding="async" />
   </body>
 </html>
