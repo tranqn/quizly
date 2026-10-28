@@ -1,8 +1,10 @@
 """Quiz endpoints: list, create (via AI pipeline), retrieve, update, delete."""
 from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from ..models import Quiz
+from .permissions import GuestReadOnly
 from .serializers import QuizCreateSerializer, QuizSerializer
 from .services import create_quiz_from_url
 
@@ -11,6 +13,7 @@ class QuizListCreateView(generics.ListCreateAPIView):
     """List the user's quizzes or generate a new one from a YouTube URL."""
 
     serializer_class = QuizSerializer
+    permission_classes = [IsAuthenticated, GuestReadOnly]
 
     def get_queryset(self):
         """Restrict quizzes to the authenticated owner."""
@@ -28,6 +31,7 @@ class QuizDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Retrieve, partially update (title/description) or delete a quiz."""
 
     serializer_class = QuizSerializer
+    permission_classes = [IsAuthenticated, GuestReadOnly]
 
     def get_queryset(self):
         """Restrict access to quizzes owned by the authenticated user."""

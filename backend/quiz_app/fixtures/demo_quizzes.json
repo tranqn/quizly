@@ -1,0 +1,323 @@
+[
+  {
+    "video_url": "https://www.youtube.com/watch?v=9nRakAyBIqw",
+    "title": "Quiz zur Fotosynthese",
+    "description": "Teste dein Wissen über die Fotosynthese, den Prozess, auf dem das Leben auf der Erde beruht.",
+    "questions": [
+      {
+        "question_title": "Welcher Prozess, der im Pflanzeninneren abläuft, ermöglicht uns überhaupt zu leben und zu atmen?",
+        "question_options": [
+          "Die Respiration",
+          "Die Fotosynthese",
+          "Die Gärung",
+          "Die Zellatmung"
+        ],
+        "answer": "Die Fotosynthese"
+      },
+      {
+        "question_title": "Vor wie vielen Jahren begann die Fotosynthese auf unserer Erde, wie im Video erwähnt?",
+        "question_options": [
+          "Nur ein paar tausend Jahre",
+          "Etwa 1 Milliarde Jahre",
+          "Circa 3,5 Milliarden Jahre",
+          "500 Millionen Jahre"
+        ],
+        "answer": "Circa 3,5 Milliarden Jahre"
+      },
+      {
+        "question_title": "Welche Organismen begannen laut dem Video zuerst mit der Fotosynthese?",
+        "question_options": [
+          "Die Landpflanzen",
+          "Die Pilze",
+          "Die Algen im Wasser",
+          "Bestimmte Bakterien"
+        ],
+        "answer": "Die Algen im Wasser"
+      },
+      {
+        "question_title": "Welche drei Dinge, die auch als Rohstoffe bezeichnet werden, benötigen Pflanzen für die Fotosynthese?",
+        "question_options": [
+          "Sauerstoff, Zucker und Wärme",
+          "Stickstoff, Phosphat und Kalium",
+          "Kohlendioxid (CO2), Wasser (H2O) und Licht",
+          "Methan, Ammoniak und UV-Strahlung"
+        ],
+        "answer": "Kohlendioxid (CO2), Wasser (H2O) und Licht"
+      },
+      {
+        "question_title": "Wie werden die Minikraftwerke in den Blättern genannt, die für die Fotosynthese zuständig sind?",
+        "question_options": [
+          "Mitochondrien",
+          "Vakuolen",
+          "Chloroplasten",
+          "Zellkerne"
+        ],
+        "answer": "Chloroplasten"
+      },
+      {
+        "question_title": "Welcher Farbstoff in den Chloroplasten nimmt die Energie des Lichts auf und verleiht den Blättern ihre grüne Farbe?",
+        "question_options": [
+          "Karotin",
+          "Anthocyan",
+          "Chlorophyll",
+          "Lignin"
+        ],
+        "answer": "Chlorophyll"
+      },
+      {
+        "question_title": "Was ist das Hauptprodukt der Fotosynthese, das den Pflanzen als Nahrung dient?",
+        "question_options": [
+          "Stärke",
+          "Proteine",
+          "Traubenzucker",
+          "Fette"
+        ],
+        "answer": "Traubenzucker"
+      },
+      {
+        "question_title": "Welches Abfallprodukt der Fotosynthese ist für Menschen lebensnotwendig zum Atmen?",
+        "question_options": [
+          "Kohlendioxid",
+          "Wasserdampf",
+          "Methan",
+          "Sauerstoff"
+        ],
+        "answer": "Sauerstoff"
+      },
+      {
+        "question_title": "Wie hat die Fotosynthese den Sauerstoffgehalt in unserer Luft seit den Anfängen verändert?",
+        "question_options": [
+          "Er ist von 21% auf unter 1% gesunken.",
+          "Er ist konstant bei etwa 21% geblieben.",
+          "Er ist von weniger als 1% auf rund 21% angestiegen.",
+          "Er ist auf über 50% angestiegen."
+        ],
+        "answer": "Er ist von weniger als 1% auf rund 21% angestiegen."
+      },
+      {
+        "question_title": "Warum stellen viele Pflanzen ihre Fotosynthese im Herbst ein?",
+        "question_options": [
+          "Weil es im Herbst zu kalt wird.",
+          "Weil sie dann Wasser sparen müssen.",
+          "Weil das Chlorophyll abgebaut wird.",
+          "Weil sie dann ihre Früchte tragen."
+        ],
+        "answer": "Weil das Chlorophyll abgebaut wird."
+      }
+    ]
+  },
+  {
+    "video_url": "https://www.youtube.com/watch?v=sDt5bTQBJis",
+    "title": "KI verstehen",
+    "description": "Teste dein Wissen über künstliche Intelligenz: was sie ist, wie sie lernt und wo sie heute hilft.",
+    "questions": [
+      {
+        "question_title": "Was versteht man laut Text unter künstlicher Intelligenz (KI)?",
+        "question_options": [
+          "Wenn Menschen Computer bauen.",
+          "Wenn Computer-Systeme Aufgaben erledigen, die menschliche Intelligenz erfordern.",
+          "Wenn Maschinen sprechen können.",
+          "Wenn Programme selbstständig Computer reparieren."
+        ],
+        "answer": "Wenn Computer-Systeme Aufgaben erledigen, die menschliche Intelligenz erfordern."
+      },
+      {
+        "question_title": "Welche der folgenden Aufgaben kann KI laut Text übernehmen?",
+        "question_options": [
+          "Bäume pflanzen.",
+          "Entscheidungen treffen.",
+          "Kaffee kochen.",
+          "Autos reparieren."
+        ],
+        "answer": "Entscheidungen treffen."
+      },
+      {
+        "question_title": "Eine Möglichkeit, KI-Systeme mit Wissen auszustatten, ist, jede einzelne Anweisung wie bei einem Kochrezept...",
+        "question_options": [
+          "zu vergessen.",
+          "festzuprogrammieren.",
+          "zu ignorieren.",
+          "zu hinterfragen."
+        ],
+        "answer": "festzuprogrammieren."
+      },
+      {
+        "question_title": "Wie nennt man die Methode, bei der Programme selbst aus Daten lernen?",
+        "question_options": [
+          "Manuelles Programmieren.",
+          "Maschinelle Lernverfahren.",
+          "Software-Updates.",
+          "Datenarchivierung."
+        ],
+        "answer": "Maschinelle Lernverfahren."
+      },
+      {
+        "question_title": "In welchem Bereich erhalten wir dank KI Empfehlungen, was uns gefallen könnte?",
+        "question_options": [
+          "Beim Spazierengehen im Park.",
+          "Beim Online-Shopping, Musikhören oder Filme schauen.",
+          "Beim Sporttreiben.",
+          "Beim Geschirrspülen."
+        ],
+        "answer": "Beim Online-Shopping, Musikhören oder Filme schauen."
+      },
+      {
+        "question_title": "Was kann KI mit gesprochener Sprache tun?",
+        "question_options": [
+          "Sie ignorieren.",
+          "Sie in Text umwandeln und übersetzen.",
+          "Sie nur speichern.",
+          "Sie nur abspielen."
+        ],
+        "answer": "Sie in Text umwandeln und übersetzen."
+      },
+      {
+        "question_title": "Welche Rolle spielt KI in der Robotik?",
+        "question_options": [
+          "Sie ist ein unwichtiger Nebenaspekt.",
+          "Sie ist zentraler Bestandteil.",
+          "Sie wird nur selten eingesetzt.",
+          "Sie macht Roboter langsamer."
+        ],
+        "answer": "Sie ist zentraler Bestandteil."
+      },
+      {
+        "question_title": "Wie unterstützt KI Ärztinnen und Ärzte in der Medizin?",
+        "question_options": [
+          "Beim Kaffeekochen.",
+          "Bei der Diagnose von Krankheiten.",
+          "Beim Tragen schwerer Lasten.",
+          "Beim Schreiben von Rezepten."
+        ],
+        "answer": "Bei der Diagnose von Krankheiten."
+      },
+      {
+        "question_title": "Was ermöglicht KI im Bildungsbereich?",
+        "question_options": [
+          "Standardisierte Lehrpläne.",
+          "Individuell angepasste Lernangebote.",
+          "Die Abschaffung von Schulen.",
+          "Lernen nur noch durch Roboter."
+        ],
+        "answer": "Individuell angepasste Lernangebote."
+      },
+      {
+        "question_title": "Was besagt der Text über die Beziehung von KI und dem Menschen?",
+        "question_options": [
+          "KI wird den Menschen vollständig ersetzen.",
+          "KI kann den Menschen immer besser unterstützen.",
+          "KI ist dem Menschen grundsätzlich überlegen.",
+          "Der Mensch sollte sich nicht mit KI beschäftigen."
+        ],
+        "answer": "KI kann den Menschen immer besser unterstützen."
+      }
+    ]
+  },
+  {
+    "video_url": "https://www.youtube.com/watch?v=e9FJPnFQWi8",
+    "title": "Wie funktioniert das Internet?",
+    "description": "Teste dein Wissen über Server, Router, WLAN und Seekabel, erklärt von Fred.",
+    "questions": [
+      {
+        "question_title": "Aus wie vielen wichtigen Teilen besteht das Internet laut Fred?",
+        "question_options": [
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "answer": "4"
+      },
+      {
+        "question_title": "Wie beschreibt Fred bildlich, was ein Server ist?",
+        "question_options": [
+          "Als einen sprechenden Roboter",
+          "Als einen Dino mit einem Tablet voller Daten",
+          "Als ein kleines Kästchen mit Licht",
+          "Als einen schnellen Kabelstrang"
+        ],
+        "answer": "Als einen Dino mit einem Tablet voller Daten"
+      },
+      {
+        "question_title": "Was wird auf Servern gespeichert?",
+        "question_options": [
+          "Nur persönliche Nachrichten",
+          "Alles, was man im Internet ansehen und anhören kann",
+          "Die Liste aller Internetanbieter",
+          "Die Standorte aller Handys"
+        ],
+        "answer": "Alles, was man im Internet ansehen und anhören kann"
+      },
+      {
+        "question_title": "Was ist die Hauptaufgabe eines Routers?",
+        "question_options": [
+          "Er speichert alle Apps und Videos",
+          "Er sucht den richtigen Weg für Daten und sendet diese weiter",
+          "Er stellt dir einen Bildschirm zur Verfügung",
+          "Er erzeugt WLAN-Signale über lange Strecken"
+        ],
+        "answer": "Er sucht den richtigen Weg für Daten und sendet diese weiter"
+      },
+      {
+        "question_title": "Wofür benötigt man einen kleinen Router zu Hause?",
+        "question_options": [
+          "Um E-Mails zu verschicken",
+          "Um WLAN auf kurze Strecken zu begrenzen",
+          "Um überhaupt ins Internet zu können",
+          "Um eigene Server zu hosten"
+        ],
+        "answer": "Um überhaupt ins Internet zu können"
+      },
+      {
+        "question_title": "Welche Aussage trifft auf WLAN zu?",
+        "question_options": [
+          "Es funktioniert nur auf kurzen Strecken",
+          "Es kann Daten mitten durch den Ozean tragen",
+          "Es ist ein Ersatz für alle Kabel im Internet",
+          "Es ermöglicht den Zugriff auf amerikanische Server direkt"
+        ],
+        "answer": "Es funktioniert nur auf kurzen Strecken"
+      },
+      {
+        "question_title": "Wie werden Daten über längere Strecken, z.B. zwischen Kontinenten, transportiert?",
+        "question_options": [
+          "Über Telefonfunkantennen",
+          "Nur per WLAN",
+          "Durch dicke Kabel auf dem Meeresgrund",
+          "Mit Drohnen"
+        ],
+        "answer": "Durch dicke Kabel auf dem Meeresgrund"
+      },
+      {
+        "question_title": "Wo befinden sich viele der bekannten Internetfirmen wie WhatsApp, Google oder Facebook?",
+        "question_options": [
+          "In Europa",
+          "In Asien",
+          "In Amerika",
+          "In Afrika"
+        ],
+        "answer": "In Amerika"
+      },
+      {
+        "question_title": "Wie nennt man eine Firma, die dich überhaupt ins Internet lässt und dafür Geld verlangt?",
+        "question_options": [
+          "Einen Server-Betreiber",
+          "Einen Router-Hersteller",
+          "Einen Provider",
+          "Einen Daten-Sammler"
+        ],
+        "answer": "Einen Provider"
+      },
+      {
+        "question_title": "Was kommt beim Empfänger an, wenn man eine WhatsApp-Nachricht schickt?",
+        "question_options": [
+          "Das Original, das danach vom eigenen Handy gelöscht wird",
+          "Eine Kopie der Nachricht",
+          "Nur eine Benachrichtigung, dass etwas gesendet wurde",
+          "Eine neue App"
+        ],
+        "answer": "Eine Kopie der Nachricht"
+      }
+    ]
+  }
+]

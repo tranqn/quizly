@@ -1,9 +1,11 @@
 #!/bin/sh
-# Apply migrations, collect static assets, then serve. The long gunicorn timeout
-# accommodates the synchronous Whisper transcription, which can take minutes.
+# Apply migrations, seed the guest account, collect static assets, then serve.
+# The long gunicorn timeout accommodates the synchronous Whisper transcription,
+# which can take minutes.
 set -e
 
 python manage.py migrate --noinput
+python manage.py seed_demo
 python manage.py collectstatic --noinput
 
 exec gunicorn core.wsgi:application \
