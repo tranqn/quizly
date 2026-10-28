@@ -1,0 +1,131 @@
+[
+  {
+    "seite": "start",
+    "formFaktor": "mobil",
+    "url": "https://quizly.quocnamtran.com/",
+    "punkte": {
+      "performance": 100,
+      "accessibility": 100,
+      "best-practices": 92,
+      "seo": 91,
+      "agentic-browsing": 100
+    },
+    "lcpMs": 1399.841,
+    "cls": 0,
+    "tbtMs": 0,
+    "bytes": 362925,
+    "fehlgeschlagen": [
+      "image-aspect-ratio",
+      "image-size-responsive",
+      "meta-description"
+    ]
+  },
+  {
+    "seite": "start",
+    "formFaktor": "desktop",
+    "url": "https://quizly.quocnamtran.com/",
+    "punkte": {
+      "performance": 100,
+      "accessibility": 100,
+      "best-practices": 96,
+      "seo": 91,
+      "agentic-browsing": 100
+    },
+    "lcpMs": 321.9566,
+    "cls": 0,
+    "tbtMs": 0,
+    "bytes": 362384,
+    "fehlgeschlagen": [
+      "image-aspect-ratio",
+      "meta-description"
+    ]
+  },
+  {
+    "seite": "login",
+    "formFaktor": "mobil",
+    "url": "https://quizly.quocnamtran.com/pages/login.html",
+    "punkte": {
+      "performance": 79,
+      "accessibility": 93,
+      "best-practices": 92,
+      "seo": 91,
+      "agentic-browsing": 50
+    },
+    "lcpMs": 5906.6329000000005,
+    "cls": 0.00394609325461962,
+    "tbtMs": 0,
+    "bytes": 1021551,
+    "fehlgeschlagen": [
+      "image-aspect-ratio",
+      "image-size-responsive",
+      "link-name",
+      "meta-description",
+      "agent-accessibility-tree"
+    ]
+  },
+  {
+    "seite": "login",
+    "formFaktor": "desktop",
+    "url": "https://quizly.quocnamtran.com/pages/login.html",
+    "punkte": {
+      "performance": 98,
+      "accessibility": 93,
+      "best-practices": 92,
+      "seo": 91,
+      "agentic-browsing": 50
+    },
+    "lcpMs": 1103.6247,
+    "cls": 0.0013607816011440915,
+    "tbtMs": 0,
+    "bytes": 1021100,
+    "fehlgeschlagen": [
+      "image-aspect-ratio",
+      "image-size-responsive",
+      "link-name",
+      "meta-description",
+      "agent-accessibility-tree"
+    ]
+  },
+  {
+    "seite": "registrierung",
+    "formFaktor": "mobil",
+    "url": "https://quizly.quocnamtran.com/pages/registration.html",
+    "punkte": {
+      "performance": 79,
+      "accessibility": 100,
+      "best-practices": 92,
+      "seo": 91,
+      "agentic-browsing": 100
+    },
+    "lcpMs": 5906.738600000001,
+    "cls": 0.003778548369181763,
+    "tbtMs": 0,
+    "bytes": 1022987,
+    "fehlgeschlagen": [
+      "image-aspect-ratio",
+      "image-size-responsive",
+      "meta-description"
+    ]
+  },
+  {
+    "seite": "registrierung",
+    "formFaktor": "desktop",
+    "url": "https://quizly.quocnamtran.com/pages/registration.html",
+    "punkte": {
+      "performance": 98,
+      "accessibility": 100,
+      "best-practices": 92,
+      "seo": 91,
+      "agentic-browsing": 100
+    },
+    "lcpMs": 1125.3471,
+    "cls": 0.0009725774158713482,
+    "tbtMs": 0,
+    "bytes": 1022523,
+    "fehlgeschlagen": [
+      "image-aspect-ratio",
+      "image-size-responsive",
+      "meta-description"
+    ]
+  }
+]

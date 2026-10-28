@@ -1,0 +1,93 @@
+[
+  {
+    "seite": "bibliothek",
+    "viewport": "desktop",
+    "url": "http://127.0.0.1:8011/pages/library.html",
+    "verstoesse": []
+  },
+  {
+    "seite": "quiz-uebersicht",
+    "viewport": "desktop",
+    "url": "http://127.0.0.1:8011/pages/quizoverview.html?id=1",
+    "verstoesse": [
+      {
+        "id": "aria-allowed-attr",
+        "impact": "critical",
+        "knoten": 1
+      },
+      {
+        "id": "aria-prohibited-attr",
+        "impact": "serious",
+        "knoten": 1
+      },
+      {
+        "id": "label",
+        "impact": "critical",
+        "knoten": 2
+      }
+    ]
+  },
+  {
+    "seite": "quiz-loesen",
+    "viewport": "desktop",
+    "url": "http://127.0.0.1:8011/pages/quiz.html?id=1",
+    "verstoesse": []
+  },
+  {
+    "seite": "quiz-alle-antworten",
+    "viewport": "desktop",
+    "url": "http://127.0.0.1:8011/pages/quiz.html?id=1&isOverview=true",
+    "verstoesse": []
+  },
+  {
+    "seite": "bibliothek",
+    "viewport": "mobil",
+    "url": "http://127.0.0.1:8011/pages/library.html",
+    "verstoesse": []
+  },
+  {
+    "seite": "quiz-uebersicht",
+    "viewport": "mobil",
+    "url": "http://127.0.0.1:8011/pages/quizoverview.html?id=1",
+    "verstoesse": [
+      {
+        "id": "aria-allowed-attr",
+        "impact": "critical",
+        "knoten": 1
+      },
+      {
+        "id": "aria-prohibited-attr",
+        "impact": "serious",
+        "knoten": 1
+      },
+      {
+        "id": "button-name",
+        "impact": "critical",
+        "knoten": 1
+      },
+      {
+        "id": "label",
+        "impact": "critical",
+        "knoten": 2
+      }
+    ]
+  },
+  {
+    "seite": "quiz-loesen",
+    "viewport": "mobil",
+    "url": "http://127.0.0.1:8011/pages/quiz.html?id=1",
+    "verstoesse": []
+  },
+  {
+    "seite": "quiz-alle-antworten",
+    "viewport": "mobil",
+    "url": "http://127.0.0.1:8011/pages/quiz.html?id=1&isOverview=true",
+    "verstoesse": [
+      {
+        "id": "scrollable-region-focusable",
+        "impact": "serious",
+        "knoten": 1
+      }
+    ]
+  }
+]

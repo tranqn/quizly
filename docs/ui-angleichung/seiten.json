@@ -1,0 +1,9 @@
+{
+  "projekt": "Quizly",
+  "basis": "https://quizly.quocnamtran.com",
+  "seiten": [
+    { "name": "start", "pfad": "/", "warteMs": 9000 },
+    { "name": "login", "pfad": "/pages/login.html" },
+    { "name": "registrierung", "pfad": "/pages/registration.html" }
+  ]
+}

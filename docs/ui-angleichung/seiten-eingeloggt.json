@@ -1,0 +1,17 @@
+{
+  "projekt": "Quizly",
+  "basis": "http://127.0.0.1:8011",
+  "hinweis": "Lokal gegen eine Scratch-Datenbank mit den drei Demo-Quizzen aus backend/quiz_app/fixtures/demo_quizzes.json; Code-Stand wie live.",
+  "anmeldung": {
+    "pfad": "/pages/login.html",
+    "felder": { "#input-username": "$ENV:MESS_USER", "#input-password": "$ENV:MESS_PASS" },
+    "absenden": "button[type=submit]",
+    "warteAufPfad": "/pages/library.html"
+  },
+  "seiten": [
+    { "name": "bibliothek", "pfad": "/pages/library.html", "eingeloggt": true },
+    { "name": "quiz-uebersicht", "pfad": "/pages/quizoverview.html?id=1", "eingeloggt": true },
+    { "name": "quiz-loesen", "pfad": "/pages/quiz.html?id=1", "eingeloggt": true },
+    { "name": "quiz-alle-antworten", "pfad": "/pages/quiz.html?id=1&isOverview=true", "eingeloggt": true }
+  ]
+}
